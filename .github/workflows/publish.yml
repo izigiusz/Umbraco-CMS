@@ -172,6 +172,7 @@ jobs:
           echo ">>> Step 1: Taking site offline..."
           lftp -c "
             set ftp:ssl-allow no
+            set ftp:chmod no
             set net:timeout 30
             set net:max-retries 3
             set net:reconnect-interval-base 5
@@ -187,12 +188,14 @@ jobs:
           echo ">>> Step 2: Uploading application files..."
           lftp -c "
             set ftp:ssl-allow no
+            set ftp:chmod no
+            set mirror:set-permissions no
             set net:timeout 60
             set net:max-retries 3
             set net:reconnect-interval-base 5
             set mirror:parallel-transfer-count 4
             open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
-            mirror --reverse --verbose --delete \
+            mirror --reverse --verbose --delete --no-perms \
               --exclude-glob umbraco/Data/** \
               --exclude-glob umbraco/Logs/** \
               --exclude-glob wwwroot/media/** \
@@ -213,6 +216,7 @@ jobs:
           echo ">>> Step 3: Ensuring critical config files are uploaded..."
           lftp -c "
             set ftp:ssl-allow no
+            set ftp:chmod no
             set net:timeout 30
             open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
             cd ${{ env.REMOTE_ROOT }}
@@ -243,6 +247,7 @@ jobs:
             echo "Attempt $attempt of $max_attempts..."
             if lftp -c "
               set ftp:ssl-allow no
+              set ftp:chmod no
               set net:timeout 30
               open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
               cd ${{ env.REMOTE_ROOT }}
