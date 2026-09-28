@@ -1,0 +1,266 @@
+name: Build and Deploy to MonsterASP
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.editorconfig'
+      - '.gitignore'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  PROJECT_PATH: src/Umbraco.Web.UI/Umbraco.Web.UI.csproj
+  PUBLISH_DIR: ./publish
+  REMOTE_ROOT: /wwwroot
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET from global.json
+        uses: actions/setup-dotnet@v4
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
+
+      - name: Publish
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            -c Release \
+            --no-build \
+            --no-self-contained \
+            -o ${{ env.PUBLISH_DIR }}
+
+      - name: Create appsettings.json from template
+        run: |
+          if [ -f "${{ env.PUBLISH_DIR }}/appsettings.template.json" ]; then
+            cp "${{ env.PUBLISH_DIR }}/appsettings.template.json" "${{ env.PUBLISH_DIR }}/appsettings.json"
+            echo "Created appsettings.json from template"
+          else
+            echo "WARNING: appsettings.template.json not found!"
+            exit 1
+          fi
+
+      - name: List publish output (diagnostics)
+        run: |
+          echo "=== Publish directory contents ==="
+          ls -la ${{ env.PUBLISH_DIR }}/ | head -50
+          echo ""
+          echo "=== Total size ==="
+          du -sh ${{ env.PUBLISH_DIR }}/
+          echo ""
+          echo "=== Config files ==="
+          find ${{ env.PUBLISH_DIR }} -maxdepth 1 -name "*.json" -o -name "*.config" | sort
+          echo ""
+          echo "=== Verifying critical files ==="
+          for f in web.config appsettings.json Umbraco.Web.UI.dll; do
+            if [ -f "${{ env.PUBLISH_DIR }}/$f" ]; then
+              echo "OK: $f exists"
+            else
+              echo "ERROR: $f is missing!"
+              exit 1
+            fi
+          done
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbraco-publish
+          path: ${{ env.PUBLISH_DIR }}
+          retention-days: 7
+
+  deploy:
+    name: Deploy to MonsterASP
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://umbraco.runasp.net/
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: umbraco-publish
+          path: ${{ env.PUBLISH_DIR }}
+
+      - name: Verify artifact contents
+        run: |
+          echo "=== Verifying downloaded artifact ==="
+          ls -la ${{ env.PUBLISH_DIR }}/ | head -20
+          for f in web.config appsettings.json Umbraco.Web.UI.dll; do
+            if [ -f "${{ env.PUBLISH_DIR }}/$f" ]; then
+              echo "OK: $f present"
+            else
+              echo "ERROR: $f missing from artifact!"
+              exit 1
+            fi
+          done
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Create app_offline.htm
+        run: |
+          cat > /tmp/app_offline.htm << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Site Maintenance</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                     display: flex; justify-content: center; align-items: center; 
+                     height: 100vh; margin: 0; background: #f5f5f5; }
+              .container { text-align: center; padding: 40px; background: white; 
+                           border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+              h1 { color: #333; margin-bottom: 10px; }
+              p { color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Site Update in Progress</h1>
+              <p>We're deploying updates. Please check back in a moment.</p>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to FTP
+        env:
+          FTP_SERVER: ${{ secrets.SFTP_SERVER }}
+          FTP_USER: ${{ secrets.SFTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          
+          if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USER:-}" ] || [ -z "${FTP_PASS:-}" ]; then
+            echo "ERROR: FTP credentials not configured. Please set SFTP_SERVER, SFTP_USERNAME, SFTP_PASSWORD secrets."
+            exit 1
+          fi
+          
+          echo "=== Deploying to FTP ==="
+          echo "Server: ${FTP_SERVER} (credentials hidden)"
+          echo "Remote root: ${{ env.REMOTE_ROOT }}"
+          
+          # Step 1: Upload app_offline.htm to take site offline
+          echo ""
+          echo ">>> Step 1: Taking site offline..."
+          lftp -c "
+            set ftp:ssl-allow no
+            set net:timeout 30
+            set net:max-retries 3
+            set net:reconnect-interval-base 5
+            open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
+            cd ${{ env.REMOTE_ROOT }}
+            put /tmp/app_offline.htm
+            bye
+          "
+          echo "Site is now offline"
+          
+          # Step 2: Mirror the publish directory, excluding mutable production data
+          echo ""
+          echo ">>> Step 2: Uploading application files..."
+          lftp -c "
+            set ftp:ssl-allow no
+            set net:timeout 60
+            set net:max-retries 3
+            set net:reconnect-interval-base 5
+            set mirror:parallel-transfer-count 4
+            open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
+            mirror --reverse --verbose --delete \
+              --exclude-glob umbraco/Data/** \
+              --exclude-glob umbraco/Logs/** \
+              --exclude-glob wwwroot/media/** \
+              --exclude-glob logs/** \
+              --exclude-glob App_Data/** \
+              --exclude-glob *.db \
+              --exclude-glob *.db-shm \
+              --exclude-glob *.db-wal \
+              --exclude-glob Umbraco.sqlite.db* \
+              ${{ env.PUBLISH_DIR }}/ ${{ env.REMOTE_ROOT }}/
+            bye
+          "
+          echo "File upload complete"
+          
+          # Step 3: Explicitly ensure critical config files are uploaded
+          # (lftp mirror sometimes skips files that appear unchanged)
+          echo ""
+          echo ">>> Step 3: Ensuring critical config files are uploaded..."
+          lftp -c "
+            set ftp:ssl-allow no
+            set net:timeout 30
+            open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
+            cd ${{ env.REMOTE_ROOT }}
+            put ${{ env.PUBLISH_DIR }}/web.config
+            put ${{ env.PUBLISH_DIR }}/appsettings.json
+            bye
+          "
+          echo "Config files verified"
+
+      - name: Remove app_offline.htm (bring site online)
+        if: always()
+        env:
+          FTP_SERVER: ${{ secrets.SFTP_SERVER }}
+          FTP_USER: ${{ secrets.SFTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USER:-}" ] || [ -z "${FTP_PASS:-}" ]; then
+            echo "WARNING: FTP credentials not configured, cannot remove app_offline.htm"
+            exit 0
+          fi
+          
+          echo "=== Removing app_offline.htm to bring site online ==="
+          
+          # Retry logic for removal
+          max_attempts=3
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts..."
+            if lftp -c "
+              set ftp:ssl-allow no
+              set net:timeout 30
+              open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
+              cd ${{ env.REMOTE_ROOT }}
+              rm -f app_offline.htm
+              bye
+            " 2>&1; then
+              echo "Successfully removed app_offline.htm"
+              break
+            else
+              echo "Attempt $attempt failed"
+              if [ $attempt -eq $max_attempts ]; then
+                echo "WARNING: Could not remove app_offline.htm after $max_attempts attempts"
+                echo "The site may remain offline. Please remove manually via FTP."
+                exit 0
+              fi
+              sleep 5
+              attempt=$((attempt + 1))
+            fi
+          done
+          
+          echo "Site should now be online at http://umbraco.runasp.net/"
