@@ -76,10 +76,23 @@ tools/docfx/
 /src/Umbraco.Web.UI/[Uu]mbraco/[Dd]ata/
 /src/Umbraco.Web.UI/[Uu]mbraco/[Ll]ogs/
 /src/Umbraco.Web.UI/[Uu]mbraco/[Mm]odels/
-/src/Umbraco.Web.UI/Views/
+# Ignore generated views, but keep the directories so specific templates can be committed.
+/src/Umbraco.Web.UI/Views/*
+!/src/Umbraco.Web.UI/Views/Partials/
+/src/Umbraco.Web.UI/Views/Partials/*
 !/src/Umbraco.Web.UI/Views/Partials/blocklist/
+!/src/Umbraco.Web.UI/Views/Partials/blocklist/**
 !/src/Umbraco.Web.UI/Views/Partials/grid/
+!/src/Umbraco.Web.UI/Views/Partials/grid/**
+!/src/Umbraco.Web.UI/Views/Partials/Blog/
+!/src/Umbraco.Web.UI/Views/Partials/Blog/**
+!/src/Umbraco.Web.UI/Views/Shared/
+!/src/Umbraco.Web.UI/Views/Shared/**
 !/src/Umbraco.Web.UI/Views/_ViewImports.cshtml
+!/src/Umbraco.Web.UI/Views/_ViewStart.cshtml
+!/src/Umbraco.Web.UI/Views/Home.cshtml
+!/src/Umbraco.Web.UI/Views/Blog.cshtml
+!/src/Umbraco.Web.UI/Views/BlogPost.cshtml
 /src/Umbraco.Web.UI/appsettings.json
 /src/Umbraco.Web.UI/appsettings.Development.json
 /src/Umbraco.Web.UI/appsettings.Local.json

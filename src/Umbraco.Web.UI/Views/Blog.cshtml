@@ -1,0 +1,81 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    const int pageSize = 6;
+    var tagFilter = Context.Request.Query["tag"].ToString();
+    var posts = Model.ChildrenOfType(BlogAliases.Post)
+        .OrderByDescending(post => post.Value<DateTime?>(BlogAliases.PublishDate) ?? post.CreateDate)
+        .ToList();
+    if (!string.IsNullOrWhiteSpace(tagFilter))
+    {
+        posts = posts
+            .Where(post => (post.Value<IEnumerable<string>>(BlogAliases.Tags) ?? [])
+                .Any(tag => string.Equals(tag, tagFilter, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
+    var totalPages = Math.Max(1, (int)Math.Ceiling(posts.Count / (double)pageSize));
+    var page = 1;
+    if (int.TryParse(Context.Request.Query["page"], out var requested))
+    {
+        page = Math.Clamp(requested, 1, totalPages);
+    }
+
+    var pagePosts = posts.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+    string PageHref(int number)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(tagFilter))
+        {
+            parts.Add("tag=" + Uri.EscapeDataString(tagFilter));
+        }
+
+        if (number > 1)
+        {
+            parts.Add("page=" + number);
+        }
+
+        var blogUrl = Model.Url() ?? "/";
+        return parts.Count == 0 ? blogUrl : blogUrl + "?" + string.Join("&", parts);
+    }
+}
+<h1>@Model.Name</h1>
+@if (Model.HasValue(BlogAliases.Intro))
+{
+    <p class="lead">@Model.Value(BlogAliases.Intro)</p>
+}
+@if (!string.IsNullOrWhiteSpace(tagFilter))
+{
+    <p class="meta">Tag: @tagFilter. <a href="@Model.Url()">Show all</a></p>
+}
+@if (pagePosts.Count == 0)
+{
+    <p>No posts yet.</p>
+}
+else
+{
+    <ul class="post-list">
+        @foreach (var post in pagePosts)
+        {
+            <li>@await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)</li>
+        }
+    </ul>
+}
+@if (totalPages > 1)
+{
+    <nav class="pager" aria-label="Posts">
+        @if (page > 1)
+        {
+            <a href="@PageHref(page - 1)">Newer</a>
+        }
+        else
+        {
+            <span></span>
+        }
+        <span class="meta">@page / @totalPages</span>
+        @if (page < totalPages)
+        {
+            <a href="@PageHref(page + 1)">Older</a>
+        }
+    </nav>
+}

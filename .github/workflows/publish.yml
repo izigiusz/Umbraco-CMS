@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: http://umbraco.runasp.net/
+      url: https://umbraco.runasp.net/
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -150,6 +150,91 @@ jobs:
           </html>
           EOF
 
+      - name: Keep the live database connection string
+        env:
+          FTP_SERVER: ${{ secrets.SFTP_SERVER }}
+          FTP_USER: ${{ secrets.SFTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USER:-}" ] || [ -z "${FTP_PASS:-}" ]; then
+            echo "ERROR: FTP credentials not configured. Please set SFTP_SERVER, SFTP_USERNAME, SFTP_PASSWORD secrets."
+            exit 1
+          fi
+
+          # The published appsettings.json carries the default SQLite connection string.
+          # If the installer wrote a different one, keep that value and the site id.
+          rm -f /tmp/remote-appsettings.json
+          set +e
+          lftp -c "
+            set ftp:ssl-allow no
+            set ftp:chmod no
+            set net:timeout 30
+            set net:max-retries 3
+            open -u ${FTP_USER},${FTP_PASS} ftp://${FTP_SERVER}
+            cd ${{ env.REMOTE_ROOT }}
+            get appsettings.json -o /tmp/remote-appsettings.json
+            bye
+          "
+          download_status=$?
+          set -e
+          if [ "$download_status" -ne 0 ]; then
+            echo "Could not download the server appsettings.json. The published SQLite connection string will be used."
+            rm -f /tmp/remote-appsettings.json
+          fi
+
+          python3 - << 'PY'
+          import json
+          import os
+
+          published_path = os.environ["PUBLISH_DIR"] + "/appsettings.json"
+          remote_path = "/tmp/remote-appsettings.json"
+
+          with open(published_path, encoding="utf-8-sig") as handle:
+              published = json.load(handle)
+
+          def walk(obj, *keys):
+              current = obj
+              for key in keys:
+                  if not isinstance(current, dict) or key not in current:
+                      return None
+                  current = current[key]
+              return current
+
+          if os.path.isfile(remote_path) and os.path.getsize(remote_path) > 0:
+              try:
+                  with open(remote_path, encoding="utf-8-sig") as handle:
+                      remote = json.load(handle)
+              except json.JSONDecodeError:
+                  print("Server appsettings.json is not valid JSON. Using the published SQLite connection string.")
+                  remote = None
+
+              if isinstance(remote, dict):
+                  remote_strings = remote.get("ConnectionStrings")
+                  dsn = remote_strings.get("umbracoDbDSN") if isinstance(remote_strings, dict) else None
+                  if isinstance(dsn, str) and dsn.strip():
+                      published.setdefault("ConnectionStrings", {})
+                      published["ConnectionStrings"]["umbracoDbDSN"] = dsn
+                      provider = remote_strings.get("umbracoDbDSN_ProviderName")
+                      if isinstance(provider, str) and provider.strip():
+                          published["ConnectionStrings"]["umbracoDbDSN_ProviderName"] = provider
+                      print("Preserved the server database connection string.")
+                  else:
+                      print("Server appsettings.json has no database connection string. Using the published SQLite default.")
+
+                  site_id = walk(remote, "Umbraco", "CMS", "Global", "Id")
+                  if isinstance(site_id, str) and site_id.strip():
+                      published.setdefault("Umbraco", {}).setdefault("CMS", {}).setdefault("Global", {})["Id"] = site_id
+                      print("Preserved Umbraco:CMS:Global:Id.")
+          else:
+              print("No server appsettings.json found. Using the published SQLite default.")
+
+          with open(published_path, "w", encoding="utf-8") as handle:
+              json.dump(published, handle, indent=2)
+              handle.write("\n")
+          PY
+
       - name: Deploy to FTP
         env:
           FTP_SERVER: ${{ secrets.SFTP_SERVER }}
@@ -183,7 +268,8 @@ jobs:
           "
           echo "Site is now offline"
           
-          # Step 2: Mirror the publish directory, excluding mutable production data
+          # Step 2: Mirror the publish directory, excluding mutable production data.
+          # umbraco/Data holds the SQLite database and the ASP.NET Data Protection key ring.
           echo ""
           echo ">>> Step 2: Uploading application files..."
           lftp -c "
@@ -268,4 +354,4 @@ jobs:
             fi
           done
           
-          echo "Site should now be online at http://umbraco.runasp.net/"
+          echo "Site should now be online at https://umbraco.runasp.net/"
