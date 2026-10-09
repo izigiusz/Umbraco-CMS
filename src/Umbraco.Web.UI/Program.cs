@@ -37,6 +37,13 @@ WebApplication app = builder.Build();
 
 await app.BootUmbracoAsync();
 
+// Detailed exceptions stay on the Development environment only.
+// Production keeps the host's generic empty 500 and does not leak compiler output.
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 #if UseHttpsRedirect
 app.UseHttpsRedirection();
 #endif
