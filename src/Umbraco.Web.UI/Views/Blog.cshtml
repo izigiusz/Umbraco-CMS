@@ -2,42 +2,27 @@
 @{
     const int pageSize = 6;
     var tagFilter = Context.Request.Query["tag"].ToString();
-    var posts = Model.ChildrenOfType(BlogAliases.Post)
-        .OrderByDescending(post => post.Value<DateTime?>(BlogAliases.PublishDate) ?? post.CreateDate)
-        .ToList();
-    if (!string.IsNullOrWhiteSpace(tagFilter))
+    var blogUrl = "/blog/";
+    var posts = new List<IPublishedContent>();
+    try
     {
-        posts = posts
-            .Where(post => (post.Value<IEnumerable<string>>(BlogAliases.Tags) ?? [])
-                .Any(tag => string.Equals(tag, tagFilter, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
-    }
-
-    var totalPages = Math.Max(1, (int)Math.Ceiling(posts.Count / (double)pageSize));
-    var page = 1;
-    if (int.TryParse(Context.Request.Query["page"], out var requested))
-    {
-        page = Math.Clamp(requested, 1, totalPages);
-    }
-
-    var pagePosts = posts.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-    string PageHref(int number)
-    {
-        var parts = new List<string>();
+        blogUrl = Model.Url() ?? blogUrl;
+        IEnumerable<IPublishedContent> query = Model.ChildrenOfType(BlogAliases.Post) ?? Enumerable.Empty<IPublishedContent>();
         if (!string.IsNullOrWhiteSpace(tagFilter))
         {
-            parts.Add("tag=" + Uri.EscapeDataString(tagFilter));
+            query = query.Where(post => BlogList.HasTag(post, tagFilter));
         }
 
-        if (number > 1)
-        {
-            parts.Add("page=" + number);
-        }
-
-        var blogUrl = Model.Url() ?? "/";
-        return parts.Count == 0 ? blogUrl : blogUrl + "?" + string.Join("&", parts);
+        posts = query.OrderByDescending(BlogList.PublishDate).ToList();
     }
+    catch
+    {
+        posts = new List<IPublishedContent>();
+    }
+
+    var totalPages = posts.Count == 0 ? 1 : (int)Math.Ceiling(posts.Count / (double)pageSize);
+    var pageNumber = BlogList.ParsePage(Context.Request.Query["page"].ToString(), totalPages);
+    var pagePosts = posts.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 }
 <h1>@Model.Name</h1>
 @if (Model.HasValue(BlogAliases.Intro))
@@ -46,9 +31,9 @@
 }
 @if (!string.IsNullOrWhiteSpace(tagFilter))
 {
-    <p class="meta">Tag: @tagFilter. <a href="@Model.Url()">Show all</a></p>
+    <p class="meta">Tag: @tagFilter. <a href="@blogUrl">Show all</a></p>
 }
-@if (pagePosts.Count == 0)
+@if (!pagePosts.Any())
 {
     <p>No posts yet.</p>
 }
@@ -57,25 +42,34 @@ else
     <ul class="post-list">
         @foreach (var post in pagePosts)
         {
-            <li>@await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)</li>
+            <li>
+                @try
+                {
+                    @await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)
+                }
+                catch
+                {
+                    <p class="meta">This post could not be displayed.</p>
+                }
+            </li>
         }
     </ul>
 }
 @if (totalPages > 1)
 {
     <nav class="pager" aria-label="Posts">
-        @if (page > 1)
+        @if (pageNumber > 1)
         {
-            <a href="@PageHref(page - 1)">Newer</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1)">Newer</a>
         }
         else
         {
             <span></span>
         }
-        <span class="meta">@page / @totalPages</span>
-        @if (page < totalPages)
+        <span class="meta">@(pageNumber) / @totalPages</span>
+        @if (pageNumber < totalPages)
         {
-            <a href="@PageHref(page + 1)">Older</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1)">Older</a>
         }
     </nav>
 }

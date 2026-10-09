@@ -1,12 +1,18 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
-@{
-    var published = Model.Value<DateTime?>(BlogAliases.PublishDate) ?? Model.CreateDate;
+@try
+{
+    var published = BlogList.PublishDate(Model);
+    var href = Model.Url() ?? "#";
+    <a class="post-card" href="@href">
+        <div class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</div>
+        <h2>@(string.IsNullOrWhiteSpace(Model.Name) ? "Untitled" : Model.Name)</h2>
+        @if (Model.HasValue(BlogAliases.Summary))
+        {
+            <p>@Model.Value(BlogAliases.Summary)</p>
+        }
+    </a>
 }
-<a class="post-card" href="@Model.Url()">
-    <div class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</div>
-    <h2>@Model.Name</h2>
-    @if (Model.HasValue(BlogAliases.Summary))
-    {
-        <p>@Model.Value(BlogAliases.Summary)</p>
-    }
-</a>
+catch
+{
+    <p class="meta">This post could not be displayed.</p>
+}
