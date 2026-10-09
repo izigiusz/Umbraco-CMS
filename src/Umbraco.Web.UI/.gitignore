@@ -4,10 +4,23 @@ umbraco/[Ll]ogs/
 umbraco/[Mm]odels/
 App_Plugins/
 App_Code/
-Views/
+# Ignore generated views, but keep the directories so specific templates can be committed.
+Views/*
+!Views/Partials/
+Views/Partials/*
 !Views/Partials/blocklist/
+!Views/Partials/blocklist/**
 !Views/Partials/blockgrid/
+!Views/Partials/blockgrid/**
+!Views/Partials/Blog/
+!Views/Partials/Blog/**
+!Views/Shared/
+!Views/Shared/**
 !Views/_ViewImports.cshtml
+!Views/_ViewStart.cshtml
+!Views/Home.cshtml
+!Views/Blog.cshtml
+!Views/BlogPost.cshtml
 appsettings.json
 appsettings.Development.json
 appsettings.Local.json

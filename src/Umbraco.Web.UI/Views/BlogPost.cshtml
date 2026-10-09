@@ -1,0 +1,34 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var published = Model.Value<DateTime?>(BlogAliases.PublishDate) ?? Model.CreateDate;
+    var summary = Model.Value<string>(BlogAliases.Summary);
+    var cover = Model.Value<MediaWithCrops>(BlogAliases.CoverImage);
+    var tags = Model.Value<IEnumerable<string>>(BlogAliases.Tags) ?? [];
+    var blog = Model.Parent;
+    ViewData["Description"] = summary;
+}
+<article>
+    <p class="meta"><a href="@(blog?.Url() ?? "/")">@(blog?.Name ?? "Blog")</a></p>
+    <h1>@Model.Name</h1>
+    <p class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</p>
+    @if (tags.Any())
+    {
+        <ul class="tags">
+            @foreach (var tag in tags)
+            {
+                <li><a href="@($"{blog?.Url()}?tag={Uri.EscapeDataString(tag)}")">@tag</a></li>
+            }
+        </ul>
+    }
+    @if (cover is not null)
+    {
+        <img class="cover" src="@cover.Url()" alt="" />
+    }
+    @if (!string.IsNullOrWhiteSpace(summary))
+    {
+        <p class="lead">@summary</p>
+    }
+    <div class="body">
+        @Model.Value(BlogAliases.Body)
+    </div>
+</article>
