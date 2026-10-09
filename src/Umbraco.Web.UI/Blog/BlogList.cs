@@ -9,6 +9,9 @@ namespace Umbraco.Cms.Web.UI.Blog;
 /// </summary>
 public static class BlogList
 {
+    /// <summary>
+    /// Reads a 1-based page index and clamps it to the available pages.
+    /// </summary>
     public static int ParsePage(string? raw, int totalPages)
     {
         if (totalPages < 1)
@@ -24,6 +27,9 @@ public static class BlogList
         return Math.Min(requested, totalPages);
     }
 
+    /// <summary>
+    /// Publish date used for newest-first ordering. Falls back to the create date.
+    /// </summary>
     public static DateTime PublishDate(IPublishedContent? post)
     {
         if (post is null)
@@ -41,6 +47,9 @@ public static class BlogList
         }
     }
 
+    /// <summary>
+    /// Returns whether the post carries the requested tag. A bad property value does not throw.
+    /// </summary>
     public static bool HasTag(IPublishedContent? post, string? tagFilter)
     {
         if (post is null || string.IsNullOrWhiteSpace(tagFilter))
@@ -72,6 +81,9 @@ public static class BlogList
         return false;
     }
 
+    /// <summary>
+    /// Builds a list URL, omitting the page query on the first page.
+    /// </summary>
     public static string PageUrl(string? blogUrl, string? tag, int page)
     {
         var path = string.IsNullOrWhiteSpace(blogUrl) ? "/blog/" : blogUrl;
