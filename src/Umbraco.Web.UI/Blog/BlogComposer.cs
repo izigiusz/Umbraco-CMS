@@ -9,6 +9,7 @@ public class BlogComposer : IComposer
     public void Compose(IUmbracoBuilder builder)
     {
         builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, BlogContentSeeder>();
+        builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, CategoryRouteInitializer>();
         builder.AddNotificationHandler<ContentSavingNotification, CategorySlugSavingHandler>();
     }
 }
