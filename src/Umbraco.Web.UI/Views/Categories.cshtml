@@ -1,0 +1,51 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var items = new List<IPublishedContent>();
+    try
+    {
+        items = Model.ChildrenOfType(BlogAliases.Category)?.ToList() ?? [];
+    }
+    catch
+    {
+        items = [];
+    }
+}
+<h1>@Model.Name</h1>
+@if (items.Count == 0)
+{
+    <p>No categories yet.</p>
+}
+else
+{
+    <ul class="post-list">
+        @foreach (var item in items)
+        {
+            var itemName = item.Name;
+            var itemDescription = string.Empty;
+            try
+            {
+                var storedName = item.Value<string>(BlogAliases.CategoryName);
+                if (!string.IsNullOrWhiteSpace(storedName))
+                {
+                    itemName = storedName;
+                }
+
+                itemDescription = item.Value<string>(BlogAliases.Description) ?? string.Empty;
+            }
+            catch
+            {
+                itemName = item.Name;
+            }
+
+            <li>
+                <a class="post-card" href="@(item.Url() ?? "#")">
+                    <h2>@itemName</h2>
+                    @if (!string.IsNullOrWhiteSpace(itemDescription))
+                    {
+                        <p>@itemDescription</p>
+                    }
+                </a>
+            </li>
+        }
+    </ul>
+}

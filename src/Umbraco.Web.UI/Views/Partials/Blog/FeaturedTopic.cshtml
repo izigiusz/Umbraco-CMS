@@ -1,0 +1,24 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@try
+{
+    var href = Model.Url() ?? "#";
+    var lead = BlogList.Summary(Model);
+    var category = BlogList.CategoryLabel(Model);
+    var published = BlogList.PublishDate(Model);
+    <a class="featured-card" href="@href">
+        @if (string.IsNullOrWhiteSpace(category) is false)
+        {
+            <div class="meta">@category</div>
+        }
+        <h3>@(string.IsNullOrWhiteSpace(Model.Name) ? "Untitled" : Model.Name)</h3>
+        @if (string.IsNullOrWhiteSpace(lead) is false)
+        {
+            <p>@lead</p>
+        }
+        <div class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</div>
+    </a>
+}
+catch
+{
+    <p class="meta">This item could not be displayed.</p>
+}

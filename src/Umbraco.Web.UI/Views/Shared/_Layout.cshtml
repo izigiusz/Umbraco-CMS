@@ -73,6 +73,12 @@
         .body { font-size: 1.05rem; }
         .body img { max-width: 100%; height: auto; }
         .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; }
+        .featured { margin-top: 2.75rem; }
+        .featured h2 { font-size: 1.6rem; margin: 0 0 0.85rem; }
+        .featured-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem; }
+        .featured-card { display: flex; flex-direction: column; height: 100%; padding: 1rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.6rem; color: inherit; text-decoration: none; }
+        .featured-card h3 { margin: 0.25rem 0 0.4rem; font-size: 1.2rem; font-family: Georgia, "Iowan Old Style", Palatino, serif; font-weight: 500; }
+        .featured-card p { margin: 0 0 0.75rem; }
         .site-footer { color: var(--muted); font-size: 0.875rem; padding: 1rem 0 2rem; border-top: 1px solid var(--line); }
         @@media (max-width: 640px) {
             .site-header { align-items: flex-start; flex-direction: column; gap: 0.35rem; }

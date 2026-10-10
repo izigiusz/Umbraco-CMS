@@ -1,0 +1,32 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var name = Model.Name;
+    var description = string.Empty;
+    var slug = string.Empty;
+    IPublishedContent? blog = null;
+    try
+    {
+        name = Model.Value<string>(BlogAliases.CategoryName);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            name = Model.Name;
+        }
+
+        description = Model.Value<string>(BlogAliases.Description) ?? string.Empty;
+        slug = Model.Value<string>(BlogAliases.Slug) ?? string.Empty;
+        blog = Model.Root()?.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
+    }
+    catch
+    {
+        name = Model.Name;
+    }
+}
+<h1>@name</h1>
+@if (!string.IsNullOrWhiteSpace(description))
+{
+    <p class="lead">@description</p>
+}
+@if (blog is not null && !string.IsNullOrWhiteSpace(slug))
+{
+    <p><a href="@BlogList.PageUrl(blog.Url(), null, 1, slug)">Posts in this category</a></p>
+}

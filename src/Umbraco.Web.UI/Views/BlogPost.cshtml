@@ -5,12 +5,17 @@
     var cover = Model.Value<MediaWithCrops>(BlogAliases.CoverImage);
     var tags = Model.Value<IEnumerable<string>>(BlogAliases.Tags) ?? [];
     var blog = Model.Parent;
+    var categoryRef = BlogList.PickedCategoryReference(Model);
     ViewData["Description"] = summary;
 }
 <article>
     <p class="meta"><a href="@(blog?.Url() ?? "/")">@(blog?.Name ?? "Blog")</a></p>
     <h1>@Model.Name</h1>
     <p class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</p>
+    @if (categoryRef is not null)
+    {
+        <p class="meta"><a href="@BlogList.PageUrl(blog?.Url(), null, 1, categoryRef.Slug)">@categoryRef.Name</a></p>
+    }
     @if (tags.Any())
     {
         <ul class="tags">

@@ -7,5 +7,8 @@ namespace Umbraco.Cms.Web.UI.Blog;
 public class BlogComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
-        => builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, BlogContentSeeder>();
+    {
+        builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, BlogContentSeeder>();
+        builder.AddNotificationHandler<ContentSavingNotification, CategorySlugSavingHandler>();
+    }
 }

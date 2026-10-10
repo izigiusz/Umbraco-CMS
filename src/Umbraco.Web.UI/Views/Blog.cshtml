@@ -2,6 +2,8 @@
 @{
     const int pageSize = 6;
     var tagFilter = Context.Request.Query["tag"].ToString();
+    var categoryFilter = Context.Request.Query["category"].ToString();
+    var categoryTitle = categoryFilter;
     var blogUrl = "/blog/";
     var posts = new List<IPublishedContent>();
     try
@@ -11,6 +13,12 @@
         if (!string.IsNullOrWhiteSpace(tagFilter))
         {
             query = query.Where(post => BlogList.HasTag(post, tagFilter));
+        }
+
+        if (!string.IsNullOrWhiteSpace(categoryFilter))
+        {
+            query = query.Where(post => BlogList.MatchesCategory(post, categoryFilter));
+            categoryTitle = BlogList.CategoryTitle(Model, categoryFilter) ?? categoryFilter;
         }
 
         posts = query.OrderByDescending(BlogList.PublishDate).ToList();
@@ -29,9 +37,19 @@
 {
     <p class="lead">@Model.Value(BlogAliases.Intro)</p>
 }
-@if (!string.IsNullOrWhiteSpace(tagFilter))
+@if (!string.IsNullOrWhiteSpace(tagFilter) || !string.IsNullOrWhiteSpace(categoryFilter))
 {
-    <p class="meta">Tag: @tagFilter. <a href="@blogUrl">Show all</a></p>
+    <p class="meta">
+        @if (!string.IsNullOrWhiteSpace(categoryFilter))
+        {
+            <span>Category: @categoryTitle. </span>
+        }
+        @if (!string.IsNullOrWhiteSpace(tagFilter))
+        {
+            <span>Tag: @tagFilter. </span>
+        }
+        <a href="@blogUrl">Show all</a>
+    </p>
 }
 @if (!pagePosts.Any())
 {
@@ -60,7 +78,7 @@ else
     <nav class="pager" aria-label="Posts">
         @if (pageNumber > 1)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1)">Newer</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1, categoryFilter)">Newer</a>
         }
         else
         {
@@ -69,7 +87,7 @@ else
         <span class="meta">@(pageNumber) / @totalPages</span>
         @if (pageNumber < totalPages)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1)">Older</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1, categoryFilter)">Older</a>
         }
     </nav>
 }
