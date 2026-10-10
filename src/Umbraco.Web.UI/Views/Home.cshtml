@@ -29,3 +29,27 @@ else
         <p><a href="@blog.Url()">All posts</a></p>
     }
 }
+@{
+    var featuredPosts = BlogList.FeaturedPosts(Model);
+}
+@if (featuredPosts.Count > 0)
+{
+    <section class="featured" aria-label="Polecane tematy">
+        <h2>Polecane tematy</h2>
+        <ul class="featured-grid">
+            @foreach (var featuredPost in featuredPosts)
+            {
+                <li>
+                    @try
+                    {
+                        @await Html.PartialAsync("~/Views/Partials/Blog/FeaturedTopic.cshtml", featuredPost)
+                    }
+                    catch
+                    {
+                        <p class="meta">This item could not be displayed.</p>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+}

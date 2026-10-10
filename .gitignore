@@ -93,6 +93,8 @@ tools/docfx/
 !/src/Umbraco.Web.UI/Views/Home.cshtml
 !/src/Umbraco.Web.UI/Views/Blog.cshtml
 !/src/Umbraco.Web.UI/Views/BlogPost.cshtml
+!/src/Umbraco.Web.UI/Views/Category.cshtml
+!/src/Umbraco.Web.UI/Views/Categories.cshtml
 /src/Umbraco.Web.UI/appsettings.json
 /src/Umbraco.Web.UI/appsettings.Development.json
 /src/Umbraco.Web.UI/appsettings.Local.json

@@ -14,5 +14,8 @@ public class BlogMigrationPlan : PackageMigrationPlan
     }
 
     protected override void DefinePlan()
-        => To<CreateBlogSchemaMigration>("1.0.0");
+    {
+        To<CreateBlogSchemaMigration>("1.0.0");
+        To<AddFeaturedTopicsMigration>("1.1.0");
+    }
 }
