@@ -1,40 +1,92 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @{
     var blog = Model.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
-    var posts = blog?
-        .ChildrenOfType(BlogAliases.Post)
-        .OrderByDescending(post => post.Value<DateTime?>(BlogAliases.PublishDate) ?? post.CreateDate)
-        .Take(3)
-        .ToList() ?? [];
-}
-<h1>@Model.Name</h1>
-@if (Model.HasValue(BlogAliases.Intro))
-{
-    <p class="lead">@Model.Value(BlogAliases.Intro)</p>
-}
-@if (posts.Count == 0)
-{
-    <p>No posts yet.</p>
-}
-else
-{
-    <ul class="post-list">
-        @foreach (var post in posts)
-        {
-            <li>@await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)</li>
-        }
-    </ul>
-    @if (blog is not null)
+    var posts = new List<IPublishedContent>();
+    var pillars = new List<IPublishedContent>();
+    var categories = new List<IPublishedContent>();
+    IReadOnlyList<IPublishedContent> featuredPosts = [];
+    try
     {
-        <p><a href="@blog.Url()">All posts</a></p>
+        posts = blog?
+            .ChildrenOfType(BlogAliases.Post)
+            .OrderByDescending(BlogList.PublishDate)
+            .Take(3)
+            .ToList() ?? [];
+        pillars = Portal.Pillars(Model).ToList();
+        categories = Portal.Categories(Model).ToList();
+        featuredPosts = BlogList.FeaturedPosts(Model);
+    }
+    catch
+    {
+        posts = [];
+        pillars = [];
+        categories = [];
+        featuredPosts = [];
     }
 }
-@{
-    var featuredPosts = BlogList.FeaturedPosts(Model);
+<section class="hero">
+    <p class="eyebrow">Inżynieria oprogramowania natywna dla AI</p>
+    <h1>Codation</h1>
+    <p class="tagline">Od kodowania z AI do Software Factories.</p>
+    <p class="mission">Portal wiedzy o harness engineering, Software Factory i agentowym cyklu wytwarzania oprogramowania.</p>
+</section>
+@if (Model.HasValue(BlogAliases.Intro))
+{
+    <p class="note">@Model.Value(BlogAliases.Intro)</p>
 }
+@if (pillars.Count > 0)
+{
+    <section class="section" aria-label="Działy">
+        <h2>Działy</h2>
+        <ul class="pillar-grid">
+            @foreach (var pillar in pillars)
+            {
+                var lead = Portal.Lead(pillar);
+                <li>
+                    <a class="pillar-card" href="@(pillar.Url() ?? "#")">
+                        <h2>@Portal.PillarTitle(pillar)</h2>
+                        @if (string.IsNullOrWhiteSpace(lead) is false)
+                        {
+                            <p class="meta">@lead</p>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+    </section>
+}
+<section class="section" aria-label="Najnowsze wpisy">
+    <h2>Najnowsze wpisy</h2>
+    @if (posts.Count == 0)
+    {
+        <p>Brak wpisów.</p>
+    }
+    else
+    {
+        <ul class="post-list">
+            @foreach (var post in posts)
+            {
+                <li>
+                    @try
+                    {
+                        @await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)
+                    }
+                    catch
+                    {
+                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                    }
+                </li>
+            }
+        </ul>
+        @if (blog is not null)
+        {
+            <p><a href="@blog.Url()">Wszystkie wpisy</a></p>
+        }
+    }
+</section>
 @if (featuredPosts.Count > 0)
 {
-    <section class="featured" aria-label="Polecane tematy">
+    <section class="section featured" aria-label="Polecane tematy">
         <h2>Polecane tematy</h2>
         <ul class="featured-grid">
             @foreach (var featuredPost in featuredPosts)
@@ -46,9 +98,21 @@ else
                     }
                     catch
                     {
-                        <p class="meta">This item could not be displayed.</p>
+                        <p class="meta">Nie udało się wyświetlić pozycji.</p>
                     }
                 </li>
+            }
+        </ul>
+    </section>
+}
+@if (categories.Count > 0)
+{
+    <section class="section" aria-label="Kategorie">
+        <h2>Kategorie</h2>
+        <ul class="cat-strip">
+            @foreach (var category in categories)
+            {
+                <li>@await Html.PartialAsync("~/Views/Partials/Blog/CategoryChip.cshtml", category)</li>
             }
         </ul>
     </section>

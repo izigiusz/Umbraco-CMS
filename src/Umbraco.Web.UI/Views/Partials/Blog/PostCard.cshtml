@@ -3,16 +3,22 @@
 {
     var published = BlogList.PublishDate(Model);
     var href = Model.Url() ?? "#";
+    var category = BlogList.PickedCategory(Model);
+    var lead = BlogList.Summary(Model);
     <a class="post-card" href="@href">
-        <div class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</div>
-        <h2>@(string.IsNullOrWhiteSpace(Model.Name) ? "Untitled" : Model.Name)</h2>
-        @if (Model.HasValue(BlogAliases.Summary))
+        <div class="meta">@Portal.FormatDate(published)</div>
+        @if (category is not null)
         {
-            <p>@Model.Value(BlogAliases.Summary)</p>
+            <span class="chip" style="--chip: @Portal.AccentCss(category)">@Portal.CategoryName(category)</span>
+        }
+        <h2>@(string.IsNullOrWhiteSpace(Model.Name) ? "Bez tytułu" : Model.Name)</h2>
+        @if (string.IsNullOrWhiteSpace(lead) is false)
+        {
+            <p>@lead</p>
         }
     </a>
 }
 catch
 {
-    <p class="meta">This post could not be displayed.</p>
+    <p class="meta">Nie udało się wyświetlić wpisu.</p>
 }

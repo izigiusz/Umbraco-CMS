@@ -2,31 +2,52 @@
 @{
     var name = Model.Name;
     var description = string.Empty;
-    var slug = string.Empty;
-    IPublishedContent? blog = null;
+    var accent = "#22d3ee";
+    var posts = new List<IPublishedContent>();
     try
     {
-        name = Model.Value<string>(BlogAliases.CategoryName);
-        if (string.IsNullOrWhiteSpace(name))
+        name = Portal.CategoryName(Model);
+        description = Portal.TextOrEmpty(Model, BlogAliases.Description);
+        accent = Portal.AccentCss(Model);
+        posts = Portal.PostsInCategory(Model).ToList();
+        if (string.IsNullOrWhiteSpace(description) is false)
         {
-            name = Model.Name;
+            ViewData["Description"] = description;
         }
-
-        description = Model.Value<string>(BlogAliases.Description) ?? string.Empty;
-        slug = Model.Value<string>(BlogAliases.Slug) ?? string.Empty;
-        blog = Model.Root()?.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
     }
     catch
     {
         name = Model.Name;
     }
 }
+<p><span class="chip" style="--chip: @accent">@name</span></p>
 <h1>@name</h1>
 @if (!string.IsNullOrWhiteSpace(description))
 {
     <p class="lead">@description</p>
 }
-@if (blog is not null && !string.IsNullOrWhiteSpace(slug))
-{
-    <p><a href="@BlogList.PageUrl(blog.Url(), null, 1, slug)">Posts in this category</a></p>
-}
+<section class="section" aria-label="Wpisy">
+    <h2>Wpisy</h2>
+    @if (posts.Count == 0)
+    {
+        <p>Brak wpisów w tej kategorii.</p>
+    }
+    else
+    {
+        <ul class="post-list">
+            @foreach (var post in posts)
+            {
+                <li>
+                    @try
+                    {
+                        @await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)
+                    }
+                    catch
+                    {
+                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                    }
+                </li>
+            }
+        </ul>
+    }
+</section>

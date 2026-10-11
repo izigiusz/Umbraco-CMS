@@ -23,6 +23,7 @@ Views/Partials/*
 !Views/BlogPost.cshtml
 !Views/Category.cshtml
 !Views/Categories.cshtml
+!Views/Pillar.cshtml
 appsettings.json
 appsettings.Development.json
 appsettings.Local.json

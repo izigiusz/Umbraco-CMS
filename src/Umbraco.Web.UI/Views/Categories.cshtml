@@ -13,7 +13,7 @@
 <h1>@Model.Name</h1>
 @if (items.Count == 0)
 {
-    <p>No categories yet.</p>
+    <p>Brak kategorii.</p>
 }
 else
 {
@@ -37,8 +37,19 @@ else
                 itemName = item.Name;
             }
 
+            var accent = "#22d3ee";
+            try
+            {
+                accent = Portal.AccentCss(item);
+            }
+            catch
+            {
+                accent = "#22d3ee";
+            }
+
             <li>
                 <a class="post-card" href="@(item.Url() ?? "#")">
+                    <span class="chip" style="--chip: @accent">@itemName</span>
                     <h2>@itemName</h2>
                     @if (!string.IsNullOrWhiteSpace(itemDescription))
                     {

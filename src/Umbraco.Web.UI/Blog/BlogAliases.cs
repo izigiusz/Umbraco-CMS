@@ -11,6 +11,7 @@ public static class BlogAliases
     public const string Post = "blogPost";
     public const string Category = "category";
     public const string Categories = "categories";
+    public const string Pillar = "pillar";
 
     public const string HomeTemplate = "Home";
     public const string BlogTemplate = "Blog";
@@ -35,4 +36,14 @@ public static class BlogAliases
 
     public const string CategoryTemplate = "Category";
     public const string CategoriesTemplate = "Categories";
+    public const string PillarTemplate = "Pillar";
+
+    public const string PillarTitle = "pillarTitle";
+    public const string Lead = "lead";
+    public const string RelatedCategories = "relatedCategories";
+    public const string PillarOrder = "pillarOrder";
+    public const string AccentColor = "accentColor";
+
+    public const string AccentColorDataTypeName = "Category accent";
+    public const string PillarCategoriesDataTypeName = "Pillar related categories";
 }
