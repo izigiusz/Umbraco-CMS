@@ -2,7 +2,6 @@
 @{
     var blog = Model.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
     var posts = new List<IPublishedContent>();
-    var pillars = new List<IPublishedContent>();
     var categories = new List<IPublishedContent>();
     IReadOnlyList<IPublishedContent> featuredPosts = [];
     try
@@ -12,14 +11,12 @@
             .OrderByDescending(BlogList.PublishDate)
             .Take(3)
             .ToList() ?? [];
-        pillars = Portal.Pillars(Model).ToList();
         categories = Portal.Categories(Model).ToList();
         featuredPosts = BlogList.FeaturedPosts(Model);
     }
     catch
     {
         posts = [];
-        pillars = [];
         categories = [];
         featuredPosts = [];
     }
@@ -33,35 +30,6 @@
 @if (Model.HasValue(BlogAliases.Intro))
 {
     <p class="note">@Model.Value(BlogAliases.Intro)</p>
-}
-@if (blog is not null || pillars.Count > 0)
-{
-    <section class="section" aria-label="Działy">
-        <h2>Działy</h2>
-        <ul class="pillar-grid">
-            @if (blog is not null)
-            {
-                <li>
-                    <a class="pillar-card" href="@blog.Url()">
-                        <h2>@blog.Name</h2>
-                    </a>
-                </li>
-            }
-            @foreach (var pillar in pillars)
-            {
-                var lead = Portal.Lead(pillar);
-                <li>
-                    <a class="pillar-card" href="@(pillar.Url() ?? "#")">
-                        <h2>@Portal.PillarTitle(pillar)</h2>
-                        @if (string.IsNullOrWhiteSpace(lead) is false)
-                        {
-                            <p class="meta">@lead</p>
-                        }
-                    </a>
-                </li>
-            }
-        </ul>
-    </section>
 }
 <section class="section" aria-label="Najnowsze wpisy">
     <h2>Najnowsze wpisy</h2>
@@ -86,10 +54,10 @@
                 </li>
             }
         </ul>
-        @if (blog is not null)
-        {
-            <p><a href="@blog.Url()">Wszystkie aktualności</a></p>
-        }
+    }
+    @if (blog is not null)
+    {
+        <p><a href="@blog.Url()">Wszystkie aktualności</a></p>
     }
 </section>
 @if (featuredPosts.Count > 0)
