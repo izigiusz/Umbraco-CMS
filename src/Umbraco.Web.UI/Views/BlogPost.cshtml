@@ -11,8 +11,15 @@
 <article>
     <p class="meta"><a href="@(blog?.Url() ?? "/")">@(blog?.Name ?? "Blog")</a></p>
     <h1>@Model.Name</h1>
-    <p class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</p>
-    @if (categoryRef is not null)
+    <p class="meta">@Portal.FormatDate(published)</p>
+    @{
+        var pickedCategory = BlogList.PickedCategory(Model);
+    }
+    @if (pickedCategory is not null)
+    {
+        <p>@await Html.PartialAsync("~/Views/Partials/Blog/CategoryChip.cshtml", pickedCategory)</p>
+    }
+    else if (categoryRef is not null)
     {
         <p class="meta"><a href="@BlogList.PageUrl(blog?.Url(), null, 1, categoryRef.Slug)">@categoryRef.Name</a></p>
     }

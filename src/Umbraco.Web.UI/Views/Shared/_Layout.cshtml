@@ -1,102 +1,142 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @{
     var home = Model.Root();
-    var blog = home?.ChildrenOfType("blog").FirstOrDefault();
-    var siteName = home?.Name ?? "Blog";
-    var pageTitle = home is not null && Model.Id == home.Id ? siteName : $"{Model.Name} — {siteName}";
+    var blog = home?.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
+    var categoriesNode = Portal.Container(Model);
+    var pillars = Portal.Pillars(home);
+    var footerCategories = Portal.Categories(Model);
+    var siteName = "Codation";
+    var pageName = string.IsNullOrWhiteSpace(Model.Name) ? siteName : Model.Name;
+    if (Model.ContentType.Alias == BlogAliases.Pillar)
+    {
+        pageName = Portal.PillarTitle(Model);
+    }
+    else if (Model.ContentType.Alias == BlogAliases.Category)
+    {
+        pageName = Portal.CategoryName(Model);
+    }
+
+    var isHome = home is not null && Model.Id == home.Id;
+    var pageTitle = isHome ? "Start — Codation" : $"{pageName} — Codation";
     var description = ViewData["Description"] as string;
+    if (string.IsNullOrWhiteSpace(description))
+    {
+        description = "Codation. Portal wiedzy o harness engineering, Software Factory i agentowym cyklu wytwarzania oprogramowania.";
+    }
+
+    var alias = Model.ContentType.Alias;
+    var onBlog = alias == BlogAliases.Blog || alias == BlogAliases.Post;
+    var onCategories = alias == BlogAliases.Categories || alias == BlogAliases.Category;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@pageTitle</title>
-    @if (!string.IsNullOrWhiteSpace(description))
-    {
-        <meta name="description" content="@description" />
-    }
-    <link rel="icon" href="/favicon.ico" />
+    <meta name="description" content="@description" />
+    <meta property="og:title" content="@pageTitle" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1f33'/%3E%3Cpath d='M8 10h10M8 16h14M8 22h7' stroke='%23f8fafc' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='23' y='8' width='2.5' height='16' rx='1' fill='%2322d3ee'/%3E%3C/svg%3E" />
     <style>
         :root {
             color-scheme: light;
-            --ink: #1c1917;
-            --muted: #57534e;
-            --line: #e7e5e4;
-            --paper: #faf7f2;
-            --card: #fffdf8;
-            --accent: #9a3412;
-            --accent-soft: #ffedd5;
+            --navy: #0b1f33;
+            --navy-2: #123049;
+            --ink: #102033;
+            --muted: #526277;
+            --line: #d7e0ea;
+            --paper: #f4f7fb;
+            --card: #ffffff;
+            --cyan: #22d3ee;
+            --cyan-deep: #0e7490;
         }
         * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: "Segoe UI", system-ui, sans-serif;
-            color: var(--ink);
-            background: var(--paper);
-            line-height: 1.6;
-        }
-        a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
-        a:hover { text-decoration-thickness: 2px; }
-        .site-header, .site-footer, .wrap { width: min(42rem, calc(100% - 2rem)); margin-inline: auto; }
-        .site-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            gap: 1rem;
-            padding: 1.25rem 0 0.75rem;
-            border-bottom: 1px solid var(--line);
-        }
-        .brand { color: inherit; font-weight: 650; text-decoration: none; letter-spacing: -0.02em; }
-        .site-nav { display: flex; gap: 1rem; }
-        .site-nav a { color: var(--muted); text-decoration: none; }
-        .site-nav a[aria-current="page"] { color: var(--ink); }
-        main { padding: 1.75rem 0 3rem; }
-        h1, h2 { font-family: Georgia, "Iowan Old Style", Palatino, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
-        h1 { font-size: clamp(2rem, 5vw, 2.75rem); margin: 0 0 0.75rem; }
-        .lead { color: var(--muted); font-size: 1.125rem; margin-top: 0; }
-        .post-list { list-style: none; padding: 0; margin: 2rem 0 0; }
-        .post-list > li { border-top: 1px solid var(--line); }
-        .post-card { display: block; padding: 1.1rem 0; color: inherit; text-decoration: none; }
-        .post-card h2 { margin: 0.2rem 0; font-size: 1.4rem; }
-        .meta { color: var(--muted); font-size: 0.875rem; }
+        body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.6; }
+        a { color: var(--cyan-deep); text-underline-offset: 0.15em; }
+        .site-header, .site-footer, .wrap { width: min(68rem, calc(100% - 2rem)); margin-inline: auto; }
+        .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; padding: 1rem 0; }
+        .brand { display: flex; align-items: center; gap: 0.7rem; color: var(--navy); text-decoration: none; }
+        .brand svg { width: 2rem; height: 2rem; flex: none; }
+        .word { display: block; font-weight: 700; letter-spacing: -0.03em; font-size: 1.2rem; line-height: 1.1; }
+        .brand-tag { display: block; color: var(--muted); font-size: 0.75rem; letter-spacing: 0.01em; }
+        .site-nav { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; justify-content: flex-end; }
+        .site-nav a { color: var(--navy); text-decoration: none; font-size: 0.92rem; }
+        .site-nav a[aria-current="page"] { color: var(--cyan-deep); font-weight: 650; }
+        main { padding: 0.5rem 0 3rem; }
+        h1, h2, h3 { font-weight: 650; letter-spacing: -0.03em; line-height: 1.15; }
+        h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); margin: 0 0 0.6rem; }
+        h2 { font-size: 1.45rem; margin: 0 0 0.75rem; }
+        .hero { background: var(--navy); color: #f8fafc; border-radius: 1rem; padding: clamp(1.5rem, 4vw, 2.75rem); margin: 0.25rem 0 1.75rem; }
+        .hero h1, .hero p { color: inherit; }
+        .eyebrow { margin: 0 0 0.45rem; color: var(--cyan); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .tagline { font-size: clamp(1.15rem, 2.4vw, 1.45rem); margin: 0 0 0.6rem; }
+        .mission, .lead { color: var(--muted); margin-top: 0; }
+        .hero .mission { color: #d5e2ee; max-width: 40rem; }
+        .note { color: var(--muted); font-size: 0.95rem; }
+        .pillar-grid, .featured-grid, .cat-strip { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
+        .pillar-grid { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+        .pillar-card, .featured-card, .post-card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 0.75rem; color: inherit; text-decoration: none; }
+        .pillar-card { padding: 1rem 1.05rem 1.1rem; min-height: 8.5rem; }
+        .pillar-card h2, .post-card h2, .featured-card h3 { margin: 0.35rem 0; }
+        .section { margin: 2.25rem 0; }
+        .post-list { list-style: none; padding: 0; margin: 0; }
+        .post-list > li + li { margin-top: 0.65rem; }
+        .post-card { padding: 0.9rem 1rem; }
+        .meta { color: var(--muted); font-size: 0.85rem; }
+        .chip { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid color-mix(in srgb, var(--chip) 55%, white); background: color-mix(in srgb, var(--chip) 16%, white); color: var(--navy); border-radius: 999px; padding: 0.12rem 0.65rem; font-size: 0.78rem; text-decoration: none; }
+        .chip::before { content: ""; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--chip); }
+        .cat-strip { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+        .featured { margin-top: 0; }
+        .featured-grid { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+        .featured-card { padding: 1rem; min-height: 100%; }
         .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0; padding: 0; list-style: none; }
-        .tags a, .tag {
-            background: var(--accent-soft);
-            color: var(--accent);
-            border-radius: 999px;
-            padding: 0.1rem 0.65rem;
-            font-size: 0.8125rem;
-            text-decoration: none;
-        }
-        .cover { width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0 1rem; background: var(--card); }
+        .cover { width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0 1rem; }
         .body { font-size: 1.05rem; }
         .body img { max-width: 100%; height: auto; }
         .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; }
-        .featured { margin-top: 2.75rem; }
-        .featured h2 { font-size: 1.6rem; margin: 0 0 0.85rem; }
-        .featured-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem; }
-        .featured-card { display: flex; flex-direction: column; height: 100%; padding: 1rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.6rem; color: inherit; text-decoration: none; }
-        .featured-card h3 { margin: 0.25rem 0 0.4rem; font-size: 1.2rem; font-family: Georgia, "Iowan Old Style", Palatino, serif; font-weight: 500; }
-        .featured-card p { margin: 0 0 0.75rem; }
-        .site-footer { color: var(--muted); font-size: 0.875rem; padding: 1rem 0 2rem; border-top: 1px solid var(--line); }
-        @@media (max-width: 640px) {
-            .site-header { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
-            h1 { font-size: 1.85rem; }
+        .site-footer { color: var(--muted); font-size: 0.9rem; padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); display: grid; gap: 1rem; }
+        .site-footer a { color: var(--navy); text-decoration: none; }
+        .foot-links { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0.35rem 0 0; padding: 0; list-style: none; }
+        .copy { color: var(--navy); font-weight: 650; }
+        @@media (max-width: 720px) {
+            .site-header { align-items: flex-start; flex-direction: column; }
+            .site-nav { justify-content: flex-start; }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="@(home?.Url() ?? "/")">@siteName</a>
-        <nav class="site-nav" aria-label="Site">
+        <a class="brand" href="@(home?.Url() ?? "/")">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+                <rect x="1" y="1" width="30" height="30" rx="6" fill="#0b1f33" />
+                <path d="M8 10h10M8 16h14M8 22h7" stroke="#f8fafc" stroke-width="2" stroke-linecap="round" />
+                <rect x="23" y="8" width="2.5" height="16" rx="1" fill="#22d3ee" />
+            </svg>
+            <span>
+                <span class="word">Codation</span>
+                <span class="brand-tag">Od kodowania z AI do Software Factories</span>
+            </span>
+        </a>
+        <nav class="site-nav" aria-label="Główne">
             @if (home is not null)
             {
-                <a href="@home.Url()" aria-current="@(Model.Id == home.Id ? "page" : null)">Home</a>
+                <a href="@home.Url()" aria-current="@(isHome ? "page" : null)">Start</a>
+            }
+            @foreach (var pillar in pillars)
+            {
+                <a href="@(pillar.Url() ?? "#")" aria-current="@(Model.Id == pillar.Id ? "page" : null)">@Portal.PillarTitle(pillar)</a>
+            }
+            @if (categoriesNode is not null)
+            {
+                <a href="@categoriesNode.Url()" aria-current="@(onCategories ? "page" : null)">Kategorie</a>
             }
             @if (blog is not null)
             {
-                <a href="@blog.Url()" aria-current="@(Model.Id == blog.Id || Model.ContentType.Alias == "blogPost" ? "page" : null)">Blog</a>
+                <a href="@blog.Url()" aria-current="@(onBlog ? "page" : null)">Blog</a>
             }
         </nav>
     </header>
@@ -104,7 +144,32 @@
         @RenderBody()
     </main>
     <footer class="site-footer wrap">
-        <p>@siteName</p>
+        <p>Codation zbiera wiedzę o tym, jak projektować systemy, w których agenci pomagają tworzyć i dostarczać oprogramowanie.</p>
+        @if (pillars.Count > 0)
+        {
+            <div>
+                <strong>Działy</strong>
+                <ul class="foot-links">
+                    @foreach (var pillar in pillars)
+                    {
+                        <li><a href="@(pillar.Url() ?? "#")">@Portal.PillarTitle(pillar)</a></li>
+                    }
+                </ul>
+            </div>
+        }
+        @if (footerCategories.Count > 0)
+        {
+            <div>
+                <strong>Kategorie</strong>
+                <ul class="foot-links">
+                    @foreach (var category in footerCategories)
+                    {
+                        <li><a href="@(category.Url() ?? "#")">@Portal.CategoryName(category)</a></li>
+                    }
+                </ul>
+            </div>
+        }
+        <p class="copy">© Codation</p>
     </footer>
 </body>
 </html>

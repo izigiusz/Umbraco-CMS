@@ -1,0 +1,16 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var name = Model.Name;
+    var accent = "#22d3ee";
+    var href = Model.Url() ?? "#";
+    try
+    {
+        name = Portal.CategoryName(Model);
+        accent = Portal.AccentCss(Model);
+    }
+    catch
+    {
+        name = Model.Name;
+    }
+}
+<a class="chip" style="--chip: @accent" href="@href">@name</a>

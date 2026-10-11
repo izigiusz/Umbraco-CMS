@@ -42,18 +42,18 @@
     <p class="meta">
         @if (!string.IsNullOrWhiteSpace(categoryFilter))
         {
-            <span>Category: @categoryTitle. </span>
+            <span>Kategoria: @categoryTitle. </span>
         }
         @if (!string.IsNullOrWhiteSpace(tagFilter))
         {
             <span>Tag: @tagFilter. </span>
         }
-        <a href="@blogUrl">Show all</a>
+        <a href="@blogUrl">Pokaż wszystkie</a>
     </p>
 }
 @if (!pagePosts.Any())
 {
-    <p>No posts yet.</p>
+    <p>Brak wpisów.</p>
 }
 else
 {
@@ -67,7 +67,7 @@ else
                 }
                 catch
                 {
-                    <p class="meta">This post could not be displayed.</p>
+                    <p class="meta">Nie udało się wyświetlić wpisu.</p>
                 }
             </li>
         }
@@ -75,10 +75,10 @@ else
 }
 @if (totalPages > 1)
 {
-    <nav class="pager" aria-label="Posts">
+    <nav class="pager" aria-label="Wpisy">
         @if (pageNumber > 1)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1, categoryFilter)">Newer</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1, categoryFilter)">Nowsze</a>
         }
         else
         {
@@ -87,7 +87,7 @@ else
         <span class="meta">@(pageNumber) / @totalPages</span>
         @if (pageNumber < totalPages)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1, categoryFilter)">Older</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1, categoryFilter)">Starsze</a>
         }
     </nav>
 }

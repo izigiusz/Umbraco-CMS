@@ -7,8 +7,8 @@ using Umbraco.Cms.Core.Services;
 namespace Umbraco.Cms.Web.UI.Blog;
 
 /// <summary>
-/// Package migrations suppress publish notifications, so seeded categories have no public URL.
-/// This creates those URLs once the site is running and does not change category content.
+/// Package migrations suppress publish notifications, so seeded pages have no public URL.
+/// This creates those URLs once the site is running and does not change the content.
 /// </summary>
 public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplicationStartingNotification>
 {
@@ -36,26 +36,51 @@ public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplica
             return;
         }
 
+        try
+        {
+            ILanguage? language = await _languageService.GetDefaultLanguageAsync();
+            var culture = language?.IsoCode ?? string.Empty;
+            await EnsureContainerRouteAsync(culture);
+            await EnsurePillarRoutesAsync(culture);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Published portal pages were missing public URLs.");
+        }
+    }
+
+    private async Task EnsureContainerRouteAsync(string culture)
+    {
         if (_contentService.GetById(CategorySeed.ContainerKey) is null)
         {
             return;
         }
 
-        try
+        if (string.IsNullOrEmpty(_documentUrlService.GetUrlSegment(CategorySeed.ContainerKey, culture, isDraft: false)) is false)
         {
-            ILanguage? language = await _languageService.GetDefaultLanguageAsync();
-            var culture = language?.IsoCode ?? string.Empty;
-            if (string.IsNullOrEmpty(_documentUrlService.GetUrlSegment(CategorySeed.ContainerKey, culture, isDraft: false)) is false)
+            return;
+        }
+
+        await _documentUrlService.CreateOrUpdateUrlSegmentsWithDescendantsAsync(CategorySeed.ContainerKey);
+        _logger.LogInformation("Created public URLs for the category container and its children.");
+    }
+
+    private async Task EnsurePillarRoutesAsync(string culture)
+    {
+        foreach (PillarSeedItem item in PillarSeed.Items)
+        {
+            if (_contentService.GetById(item.Key) is null)
             {
-                return;
+                continue;
             }
 
-            await _documentUrlService.CreateOrUpdateUrlSegmentsWithDescendantsAsync(CategorySeed.ContainerKey);
-            _logger.LogInformation("Created public URLs for the category container and its children.");
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "Category pages were published, but their public URLs could not be created.");
+            if (string.IsNullOrEmpty(_documentUrlService.GetUrlSegment(item.Key, culture, isDraft: false)) is false)
+            {
+                continue;
+            }
+
+            await _documentUrlService.CreateOrUpdateUrlSegmentsAsync(item.Key);
+            _logger.LogInformation("Created a public URL for pillar {Title}.", item.Title);
         }
     }
 }

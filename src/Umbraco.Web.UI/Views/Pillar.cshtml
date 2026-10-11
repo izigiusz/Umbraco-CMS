@@ -1,0 +1,68 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var title = Model.Name;
+    var lead = string.Empty;
+    var related = new List<IPublishedContent>();
+    var posts = new List<IPublishedContent>();
+    try
+    {
+        title = Portal.PillarTitle(Model);
+        lead = Portal.Lead(Model) ?? string.Empty;
+        related = Portal.RelatedCategories(Model).ToList();
+        posts = Portal.PostsForPillar(Model).ToList();
+        ViewData["Description"] = string.IsNullOrWhiteSpace(lead) ? null : lead;
+    }
+    catch
+    {
+        title = Model.Name;
+    }
+}
+<p class="eyebrow">Dział</p>
+<h1>@title</h1>
+@if (!string.IsNullOrWhiteSpace(lead))
+{
+    <p class="lead">@lead</p>
+}
+<div class="body">
+    @try
+    {
+        @Model.Value(BlogAliases.Body)
+    }
+    catch
+    {
+        <p class="meta">Treść tej strony jest niedostępna.</p>
+    }
+</div>
+@if (related.Count > 0)
+{
+    <section class="section" aria-label="Powiązane kategorie">
+        <h2>Powiązane kategorie</h2>
+        <ul class="cat-strip">
+            @foreach (var category in related)
+            {
+                <li>@await Html.PartialAsync("~/Views/Partials/Blog/CategoryChip.cshtml", category)</li>
+            }
+        </ul>
+    </section>
+}
+@if (posts.Count > 0)
+{
+    <section class="section" aria-label="Najnowsze wpisy">
+        <h2>Najnowsze wpisy</h2>
+        <ul class="post-list">
+            @foreach (var post in posts)
+            {
+                <li>
+                    @try
+                    {
+                        @await Html.PartialAsync("~/Views/Partials/Blog/PostCard.cshtml", post)
+                    }
+                    catch
+                    {
+                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+}

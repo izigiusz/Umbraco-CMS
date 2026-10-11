@@ -3,22 +3,27 @@
 {
     var href = Model.Url() ?? "#";
     var lead = BlogList.Summary(Model);
-    var category = BlogList.CategoryLabel(Model);
+    var category = BlogList.PickedCategory(Model);
+    var label = BlogList.CategoryLabel(Model);
     var published = BlogList.PublishDate(Model);
     <a class="featured-card" href="@href">
-        @if (string.IsNullOrWhiteSpace(category) is false)
+        @if (category is not null)
         {
-            <div class="meta">@category</div>
+            <span class="chip" style="--chip: @Portal.AccentCss(category)">@Portal.CategoryName(category)</span>
         }
-        <h3>@(string.IsNullOrWhiteSpace(Model.Name) ? "Untitled" : Model.Name)</h3>
+        else if (string.IsNullOrWhiteSpace(label) is false)
+        {
+            <div class="meta">@label</div>
+        }
+        <h3>@(string.IsNullOrWhiteSpace(Model.Name) ? "Bez tytułu" : Model.Name)</h3>
         @if (string.IsNullOrWhiteSpace(lead) is false)
         {
             <p>@lead</p>
         }
-        <div class="meta">@published.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture)</div>
+        <div class="meta">@Portal.FormatDate(published)</div>
     </a>
 }
 catch
 {
-    <p class="meta">This item could not be displayed.</p>
+    <p class="meta">Nie udało się wyświetlić pozycji.</p>
 }
