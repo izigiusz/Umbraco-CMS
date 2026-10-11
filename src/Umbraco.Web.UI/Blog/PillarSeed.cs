@@ -6,6 +6,19 @@ namespace Umbraco.Cms.Web.UI.Blog;
 /// </summary>
 public static class PillarSeed
 {
+    public static readonly Guid AboutKey = new("c0da7100-0000-4000-8000-000000000005");
+
+    /// <summary>
+    /// Pillar pages moved to the recycle bin. Seed steps must not create them again.
+    /// </summary>
+    public static readonly HashSet<Guid> RetiredKeys = new()
+    {
+        new Guid("c0da7100-0000-4000-8000-000000000001"),
+        new Guid("c0da7100-0000-4000-8000-000000000002"),
+        new Guid("c0da7100-0000-4000-8000-000000000003"),
+        new Guid("c0da7100-0000-4000-8000-000000000004"),
+    };
+
     public static readonly PillarSeedItem[] Items =
     [
         new(
@@ -36,7 +49,16 @@ public static class PillarSeed
             3,
             new Guid("c0da7100-0000-4000-8000-000000000004"),
             "playbooks"),
+        new(
+            "O mnie",
+            "Strona w przygotowaniu.",
+            "<p><strong>Strona w przygotowaniu.</strong></p>",
+            1,
+            AboutKey,
+            null),
     ];
+
+    public static bool IsRetired(PillarSeedItem item) => RetiredKeys.Contains(item.Key);
 }
 
 /// <summary>

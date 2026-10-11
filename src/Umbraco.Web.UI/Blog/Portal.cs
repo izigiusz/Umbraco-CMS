@@ -22,6 +22,7 @@ public static class Portal
         ["ci-cd-i-pipeliney"] = "#fbbf24",
         ["observability-i-monitoring"] = "#fb7185",
         ["playbooks"] = "#a78bfa",
+        ["neo4j"] = "#06b6d4",
     };
 
     /// <summary>

@@ -139,6 +139,13 @@ public class AddPortalPillarsMigration : AsyncMigrationBase
 
         foreach (PillarSeedItem item in PillarSeed.Items)
         {
+            if (PillarSeed.IsRetired(item))
+            {
+                Logger.LogInformation("Pillar {Title} is retired; it was not seeded.", item.Title);
+                continue;
+            }
+
+            // GetById still returns a node that lives in the recycle bin.
             if (_contentService.GetById(item.Key) is not null)
             {
                 Logger.LogInformation("Pillar {Title} already exists; it was not modified.", item.Title);

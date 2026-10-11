@@ -34,11 +34,19 @@
 {
     <p class="note">@Model.Value(BlogAliases.Intro)</p>
 }
-@if (pillars.Count > 0)
+@if (blog is not null || pillars.Count > 0)
 {
     <section class="section" aria-label="Działy">
         <h2>Działy</h2>
         <ul class="pillar-grid">
+            @if (blog is not null)
+            {
+                <li>
+                    <a class="pillar-card" href="@blog.Url()">
+                        <h2>@blog.Name</h2>
+                    </a>
+                </li>
+            }
             @foreach (var pillar in pillars)
             {
                 var lead = Portal.Lead(pillar);
@@ -80,7 +88,7 @@
         </ul>
         @if (blog is not null)
         {
-            <p><a href="@blog.Url()">Wszystkie wpisy</a></p>
+            <p><a href="@blog.Url()">Wszystkie aktualności</a></p>
         }
     }
 </section>

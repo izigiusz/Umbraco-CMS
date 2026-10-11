@@ -17,7 +17,7 @@
     }
 
     var isHome = home is not null && Model.Id == home.Id;
-    var pageTitle = isHome ? "Start — Codation" : $"{pageName} — Codation";
+    var pageTitle = isHome ? "Codation" : $"{pageName} — Codation";
     var description = ViewData["Description"] as string;
     if (string.IsNullOrWhiteSpace(description))
     {
@@ -122,9 +122,9 @@
             </span>
         </a>
         <nav class="site-nav" aria-label="Główne">
-            @if (home is not null)
+            @if (blog is not null)
             {
-                <a href="@home.Url()" aria-current="@(isHome ? "page" : null)">Start</a>
+                <a href="@blog.Url()" aria-current="@(onBlog ? "page" : null)">@blog.Name</a>
             }
             @foreach (var pillar in pillars)
             {
@@ -132,11 +132,7 @@
             }
             @if (categoriesNode is not null)
             {
-                <a href="@categoriesNode.Url()" aria-current="@(onCategories ? "page" : null)">Kategorie</a>
-            }
-            @if (blog is not null)
-            {
-                <a href="@blog.Url()" aria-current="@(onBlog ? "page" : null)">Blog</a>
+                <a href="@categoriesNode.Url()" aria-current="@(onCategories ? "page" : null)">@(string.IsNullOrWhiteSpace(categoriesNode.Name) ? "Kategorie" : categoriesNode.Name)</a>
             }
         </nav>
     </header>
@@ -145,11 +141,15 @@
     </main>
     <footer class="site-footer wrap">
         <p>Codation zbiera wiedzę o tym, jak projektować systemy, w których agenci pomagają tworzyć i dostarczać oprogramowanie.</p>
-        @if (pillars.Count > 0)
+        @if (blog is not null || pillars.Count > 0)
         {
             <div>
                 <strong>Działy</strong>
                 <ul class="foot-links">
+                    @if (blog is not null)
+                    {
+                        <li><a href="@blog.Url()">@blog.Name</a></li>
+                    }
                     @foreach (var pillar in pillars)
                     {
                         <li><a href="@(pillar.Url() ?? "#")">@Portal.PillarTitle(pillar)</a></li>
