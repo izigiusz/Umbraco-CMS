@@ -239,6 +239,13 @@ public class AddFeaturedTopicsMigration : AsyncMigrationBase
 
         foreach (CategorySeedItem item in CategorySeed.Items)
         {
+            if (CategorySeed.IsRetired(item))
+            {
+                Logger.LogInformation("Category {Slug} is retired; it was not seeded.", item.Slug);
+                continue;
+            }
+
+            // GetById still returns a node that lives in the recycle bin.
             if (_contentService.GetById(item.Key) is not null || SlugExists(item.Slug))
             {
                 Logger.LogInformation("Category {Slug} already exists; it was not modified.", item.Slug);
