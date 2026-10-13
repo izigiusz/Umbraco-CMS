@@ -1,0 +1,32 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@try
+{
+    var url = Portal.ToolUrl(Model);
+    var description = Portal.ToolDescription(Model);
+    var category = Portal.ToolCategory(Model);
+    var name = string.IsNullOrWhiteSpace(Model.Name) ? "Bez nazwy" : Model.Name;
+    <article class="post-card">
+        <h2>
+            @if (string.IsNullOrWhiteSpace(url))
+            {
+                @name
+            }
+            else
+            {
+                <a href="@url" target="_blank" rel="noopener">@name</a>
+            }
+        </h2>
+        @if (string.IsNullOrWhiteSpace(description) is false)
+        {
+            <p>@description</p>
+        }
+        @if (category is not null)
+        {
+            @await Html.PartialAsync("~/Views/Partials/Blog/CategoryChip.cshtml", category)
+        }
+    </article>
+}
+catch
+{
+    <p class="meta">Nie udało się wyświetlić narzędzia.</p>
+}

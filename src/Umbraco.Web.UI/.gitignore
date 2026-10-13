@@ -24,6 +24,7 @@ Views/Partials/*
 !Views/Category.cshtml
 !Views/Categories.cshtml
 !Views/Pillar.cshtml
+!Views/ToolsCatalog.cshtml
 appsettings.json
 appsettings.Development.json
 appsettings.Local.json

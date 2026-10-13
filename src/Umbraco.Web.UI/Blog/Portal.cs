@@ -10,6 +10,7 @@ namespace Umbraco.Cms.Web.UI.Blog;
 public static class Portal
 {
     private static readonly CultureInfo Polish = CultureInfo.GetCultureInfo("pl-PL");
+    private static readonly StringComparer PolishNames = StringComparer.Create(Polish, ignoreCase: true);
 
     private static readonly Dictionary<string, string> AccentBySlug = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -61,6 +62,155 @@ public static class Portal
         {
             return [];
         }
+    }
+
+    /// <summary>
+    /// The published tools list under Home, when it exists.
+    /// </summary>
+    public static IPublishedContent? ToolsCatalog(IPublishedContent? anyPage)
+    {
+        try
+        {
+            IEnumerable<IPublishedContent>? pages = anyPage?.Root()?.ChildrenOfType(BlogAliases.ToolsCatalog);
+            return pages?.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Published tools under the list, ordered by name.
+    /// </summary>
+    public static IReadOnlyList<IPublishedContent> Tools(IPublishedContent? catalog)
+    {
+        try
+        {
+            IEnumerable<IPublishedContent>? items = catalog?.ChildrenOfType(BlogAliases.Tool);
+            if (items is null)
+            {
+                return [];
+            }
+
+            return items.OrderBy(item => item.Name, PolishNames).ToList();
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>
+    /// Published tools whose picked category is this document, ordered by name.
+    /// </summary>
+    public static IReadOnlyList<IPublishedContent> ToolsInCategory(IPublishedContent? category)
+    {
+        if (category is null)
+        {
+            return [];
+        }
+
+        var result = new List<IPublishedContent>();
+        foreach (IPublishedContent tool in Tools(ToolsCatalog(category)))
+        {
+            IPublishedContent? picked = ToolCategory(tool);
+            if (picked is not null && picked.Key == category.Key)
+            {
+                result.Add(tool);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Category picked on a tool. Unpublished and trashed items are omitted.
+    /// </summary>
+    public static IPublishedContent? ToolCategory(IPublishedContent? tool)
+    {
+        if (tool is null || tool.HasProperty(BlogAliases.ToolCategory) is false)
+        {
+            return null;
+        }
+
+        try
+        {
+            IPublishedContent? single = tool.Value<IPublishedContent>(BlogAliases.ToolCategory);
+            if (IsCategory(single))
+            {
+                return single;
+            }
+
+            IEnumerable<IPublishedContent>? many = tool.Value<IEnumerable<IPublishedContent>>(BlogAliases.ToolCategory);
+            if (many is null)
+            {
+                return null;
+            }
+
+            foreach (IPublishedContent item in many)
+            {
+                if (IsCategory(item))
+                {
+                    return item;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns whether the tool's picked category uses this slug.
+    /// </summary>
+    public static bool MatchesToolCategory(IPublishedContent? tool, string? slug)
+    {
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            return false;
+        }
+
+        IPublishedContent? picked = ToolCategory(tool);
+        if (picked is null)
+        {
+            return false;
+        }
+
+        var itemSlug = Text(picked, BlogAliases.Slug, null);
+        return string.Equals(itemSlug, slug.Trim(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Absolute http(s) address of a tool. Anything else is omitted.
+    /// </summary>
+    public static string? ToolUrl(IPublishedContent? tool)
+    {
+        var raw = Text(tool, BlogAliases.ToolUrl, null);
+        if (Uri.TryCreate(raw, UriKind.Absolute, out Uri? uri) is false)
+        {
+            return null;
+        }
+
+        if (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) is false
+            && uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) is false)
+        {
+            return null;
+        }
+
+        return uri.AbsoluteUri;
+    }
+
+    /// <summary>
+    /// Short description shown on the tools list.
+    /// </summary>
+    public static string? ToolDescription(IPublishedContent? tool)
+    {
+        var description = Text(tool, BlogAliases.ShortDescription, null);
+        return string.IsNullOrWhiteSpace(description) ? null : description;
     }
 
     /// <summary>
