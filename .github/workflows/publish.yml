@@ -45,15 +45,68 @@ jobs:
         run: dotnet restore ${{ env.PROJECT_PATH }}
 
       - name: Build
-        run: dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
+        run: |
+          set -euo pipefail
+
+          # version.json enables cloudBuild.setVersionVariables and setAllVariables.
+          # Nerdbank.GitVersioning 3.7.115 then appends NAME=value lines to $GITHUB_ENV
+          # from every MSBuild node. Those appends are not atomic, so a parallel build
+          # tears a SemVer2 such as 16.1.0-rc.g7befe19. The runner rejects the leftover
+          # line ".0-rc.g7befe19" after the compiler has already reported 0 errors.
+          GITHUB_ENV=/dev/null dotnet build "${PROJECT_PATH}" -c Release --no-restore
+
+          dotnet tool install --tool-path "${RUNNER_TEMP}/nbgv" nbgv --version 3.7.115
+          nbgv="${RUNNER_TEMP}/nbgv/nbgv"
+          raw_env="$(mktemp)"
+          GITHUB_ENV="$raw_env" "$nbgv" cloud -p . -s GitHubActions -c -a
+
+          # One heredoc record per variable. tr drops CR/LF so both a stable
+          # version (16.1.0) and a prerelease (-rc / .gSHA) stay a single line.
+          semver2=""
+          index=0
+          while IFS= read -r line || [ -n "$line" ]; do
+            [ -z "$line" ] && continue
+            case "$line" in
+              *=*) ;;
+              *)
+                echo "nbgv cloud wrote a line with no name: ${line}" >&2
+                exit 1
+                ;;
+            esac
+            name="${line%%=*}"
+            value="$(printf '%s' "${line#*=}" | tr -d '\r\n')"
+            index=$((index + 1))
+            delimiter="ENDOFV_${index}_${name}"
+            {
+              printf '%s\n' "${name}<<${delimiter}"
+              printf '%s\n' "${value}"
+              printf '%s\n' "${delimiter}"
+            } >> "$GITHUB_ENV"
+            if [ "$name" = "NBGV_SemVer2" ]; then
+              semver2="$value"
+            fi
+          done < "$raw_env"
+
+          expected="$("$nbgv" get-version -p . -v SemVer2 | tr -d '\r\n')"
+          if [ "$semver2" != "$expected" ]; then
+            echo "NBGV_SemVer2 '${semver2}' does not match nbgv get-version -v SemVer2 '${expected}'." >&2
+            exit 1
+          fi
+          if ! printf '%s' "$semver2" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.]+)?$'; then
+            echo "NBGV_SemVer2 is not a single-line SemVer2 version: '${semver2}'." >&2
+            exit 1
+          fi
+          echo "NBGV_SemVer2=${semver2}"
 
       - name: Publish
         run: |
-          dotnet publish ${{ env.PROJECT_PATH }} \
+          # Publish can evaluate the same NB.GV targets. Keep those writes
+          # off the runner's env file; Build already exported the version.
+          GITHUB_ENV=/dev/null dotnet publish "${PROJECT_PATH}" \
             -c Release \
             --no-build \
             --no-self-contained \
-            -o ${{ env.PUBLISH_DIR }}
+            -o "${PUBLISH_DIR}"
 
       - name: Create appsettings.json from template
         run: |
