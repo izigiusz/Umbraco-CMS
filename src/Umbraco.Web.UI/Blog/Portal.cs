@@ -48,6 +48,36 @@ public static class Portal
     }
 
     /// <summary>
+    /// Header and footer sections, left to right:
+    /// Aktualności, Narzędzia, Kursy, Kategorie, O mnie.
+    /// A missing page is skipped. Lookup failures return an empty list.
+    /// </summary>
+    public static IReadOnlyList<MainSection> MainSections(IPublishedContent? current)
+    {
+        try
+        {
+            IPublishedContent? home = current?.Root();
+            IPublishedContent? news = FirstOfType(home, BlogAliases.Blog);
+            IPublishedContent? tools = ToolsCatalog(home);
+            IPublishedContent? courses = FindPillar(home, AddCoursesPageMigration.PageKey, AddCoursesPageMigration.PageName);
+            IPublishedContent? categories = Container(current ?? home);
+            IPublishedContent? about = FindPillar(home, PillarSeed.AboutKey, "O mnie");
+
+            var sections = new List<MainSection>(5);
+            AddSection(sections, news, "Aktualności", current is not null && IsNews(current));
+            AddSection(sections, tools, "Narzędzia", current is not null && IsAlias(current, BlogAliases.ToolsCatalog));
+            AddSection(sections, courses, AddCoursesPageMigration.PageName, IsPage(current, courses));
+            AddSection(sections, categories, "Kategorie", current is not null && IsCategories(current));
+            AddSection(sections, about, "O mnie", IsPage(current, about));
+            return sections;
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>
     /// Published categories under the Kategorie container.
     /// </summary>
     public static IReadOnlyList<IPublishedContent> Categories(IPublishedContent? anyPage)
@@ -357,6 +387,92 @@ public static class Portal
     public static string FormatDate(DateTime value)
         => value.ToString("d MMMM yyyy", Polish);
 
+    private static IPublishedContent? FirstOfType(IPublishedContent? home, string alias)
+        => home?.ChildrenOfType(alias)?.FirstOrDefault();
+
+    private static IPublishedContent? FindPillar(IPublishedContent? home, Guid key, string name)
+    {
+        IEnumerable<IPublishedContent>? pages = home?.ChildrenOfType(BlogAliases.Pillar);
+        if (pages is null)
+        {
+            return null;
+        }
+
+        IPublishedContent? byName = null;
+        foreach (IPublishedContent page in pages)
+        {
+            if (page.Key == key)
+            {
+                return page;
+            }
+
+            if (byName is null && string.Equals(page.Name, name, StringComparison.Ordinal))
+            {
+                byName = page;
+            }
+        }
+
+        return byName;
+    }
+
+    private static void AddSection(List<MainSection> sections, IPublishedContent? page, string fallback, bool current)
+    {
+        if (page is null)
+        {
+            return;
+        }
+
+        var label = fallback;
+        try
+        {
+            if (IsAlias(page, BlogAliases.Pillar))
+            {
+                label = PillarTitle(page);
+            }
+            else if (string.IsNullOrWhiteSpace(page.Name) is false)
+            {
+                label = page.Name;
+            }
+        }
+        catch (Exception)
+        {
+            label = fallback;
+        }
+
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            label = fallback;
+        }
+
+        var url = "#";
+        try
+        {
+            var resolved = page.Url();
+            if (string.IsNullOrWhiteSpace(resolved) is false)
+            {
+                url = resolved;
+            }
+        }
+        catch (Exception)
+        {
+            url = "#";
+        }
+
+        sections.Add(new MainSection(label, url, current));
+    }
+
+    private static bool IsNews(IPublishedContent page)
+        => IsAlias(page, BlogAliases.Blog) || IsAlias(page, BlogAliases.Post);
+
+    private static bool IsCategories(IPublishedContent page)
+        => IsAlias(page, BlogAliases.Categories) || IsAlias(page, BlogAliases.Category);
+
+    private static bool IsPage(IPublishedContent? current, IPublishedContent? page)
+        => current is not null && page is not null && current.Id == page.Id;
+
+    private static bool IsAlias(IPublishedContent page, string alias)
+        => page.ContentType.Alias.Equals(alias, StringComparison.OrdinalIgnoreCase);
+
     private static int PillarOrder(IPublishedContent page)
     {
         try
@@ -475,3 +591,11 @@ public static class Portal
         return true;
     }
 }
+
+/// <summary>
+/// One link in the header and in the footer Działy column.
+/// </summary>
+/// <param name="Label">Visible name.</param>
+/// <param name="Url">Public URL, or # when the page has none.</param>
+/// <param name="Current">True when this request is that section.</param>
+public sealed record MainSection(string Label, string Url, bool Current);

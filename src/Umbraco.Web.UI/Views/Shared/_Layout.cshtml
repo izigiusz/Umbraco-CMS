@@ -1,10 +1,7 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @{
     var home = Model.Root();
-    var blog = home?.ChildrenOfType(BlogAliases.Blog).FirstOrDefault();
-    var categoriesNode = Portal.Container(Model);
-    var toolsNode = Portal.ToolsCatalog(home);
-    var pillars = Portal.Pillars(home);
+    var sections = Portal.MainSections(Model);
     var footerCategories = Portal.Categories(Model);
     var siteName = "Codation";
     var pageName = string.IsNullOrWhiteSpace(Model.Name) ? siteName : Model.Name;
@@ -24,11 +21,6 @@
     {
         description = "Codation. AI SDLC | Harness Engineering | Software Factory";
     }
-
-    var alias = Model.ContentType.Alias;
-    var onBlog = alias == BlogAliases.Blog || alias == BlogAliases.Post;
-    var onCategories = alias == BlogAliases.Categories || alias == BlogAliases.Category;
-    var onTools = alias == BlogAliases.ToolsCatalog;
 }
 <!DOCTYPE html>
 <html lang="pl">
@@ -126,21 +118,9 @@
             </span>
         </a>
         <nav class="site-nav" aria-label="Główne">
-            @if (blog is not null)
+            @foreach (var section in sections)
             {
-                <a href="@blog.Url()" aria-current="@(onBlog ? "page" : null)">@blog.Name</a>
-            }
-            @foreach (var pillar in pillars)
-            {
-                <a href="@(pillar.Url() ?? "#")" aria-current="@(Model.Id == pillar.Id ? "page" : null)">@Portal.PillarTitle(pillar)</a>
-            }
-            @if (categoriesNode is not null)
-            {
-                <a href="@categoriesNode.Url()" aria-current="@(onCategories ? "page" : null)">@(string.IsNullOrWhiteSpace(categoriesNode.Name) ? "Kategorie" : categoriesNode.Name)</a>
-            }
-            @if (toolsNode is not null)
-            {
-                <a href="@(toolsNode.Url() ?? "#")" aria-current="@(onTools ? "page" : null)">@(string.IsNullOrWhiteSpace(toolsNode.Name) ? "Narzędzia" : toolsNode.Name)</a>
+                <a href="@section.Url" aria-current="@(section.Current ? "page" : null)">@section.Label</a>
             }
         </nav>
     </header>
@@ -149,22 +129,14 @@
     </main>
     <footer class="site-footer wrap">
         <p>Codation zbiera wiedzę o tym, jak projektować systemy, w których agenci pomagają tworzyć i dostarczać oprogramowanie.</p>
-        @if (blog is not null || pillars.Count > 0 || toolsNode is not null)
+        @if (sections.Count > 0)
         {
             <div>
                 <strong>Działy</strong>
                 <ul class="foot-links">
-                    @if (blog is not null)
+                    @foreach (var section in sections)
                     {
-                        <li><a href="@blog.Url()">@blog.Name</a></li>
-                    }
-                    @foreach (var pillar in pillars)
-                    {
-                        <li><a href="@(pillar.Url() ?? "#")">@Portal.PillarTitle(pillar)</a></li>
-                    }
-                    @if (toolsNode is not null)
-                    {
-                        <li><a href="@(toolsNode.Url() ?? "#")">@(string.IsNullOrWhiteSpace(toolsNode.Name) ? "Narzędzia" : toolsNode.Name)</a></li>
+                        <li><a href="@section.Url">@section.Label</a></li>
                     }
                 </ul>
             </div>
