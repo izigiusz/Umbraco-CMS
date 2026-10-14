@@ -4,6 +4,7 @@
     var description = string.Empty;
     var accent = "#22d3ee";
     var posts = new List<IPublishedContent>();
+    var tools = new List<IPublishedContent>();
     try
     {
         name = Portal.CategoryName(Model);
@@ -18,6 +19,15 @@
     catch
     {
         name = Model.Name;
+    }
+
+    try
+    {
+        tools = Portal.ToolsInCategory(Model).ToList();
+    }
+    catch
+    {
+        tools = [];
     }
 }
 <p><span class="chip" style="--chip: @accent">@name</span></p>
@@ -51,3 +61,24 @@
         </ul>
     }
 </section>
+@if (tools.Count > 0)
+{
+    <section class="section" aria-label="Narzędzia">
+        <h2>Narzędzia</h2>
+        <ul class="post-list">
+            @foreach (var tool in tools)
+            {
+                <li>
+                    @try
+                    {
+                        @await Html.PartialAsync("~/Views/Partials/Blog/ToolCard.cshtml", tool)
+                    }
+                    catch
+                    {
+                        <p class="meta">Nie udało się wyświetlić narzędzia.</p>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+}

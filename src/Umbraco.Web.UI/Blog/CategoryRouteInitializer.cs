@@ -45,6 +45,7 @@ public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplica
             var culture = language?.IsoCode ?? string.Empty;
             await EnsureContainerRouteAsync(culture);
             await EnsureNodeRouteAsync(CategorySeed.Neo4jKey, culture, "Neo4j");
+            await EnsureNodeRouteAsync(AddToolsCatalogMigration.CatalogKey, culture, AddToolsCatalogMigration.CatalogName);
             await EnsurePillarRoutesAsync(culture);
             await EnsureNewsRoutesAsync(culture);
         }

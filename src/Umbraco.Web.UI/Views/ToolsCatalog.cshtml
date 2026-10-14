@@ -1,0 +1,53 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var categoryFilter = Context.Request.Query["category"].ToString();
+    var categoryTitle = categoryFilter;
+    var catalogUrl = "/narzedzia/";
+    var tools = new List<IPublishedContent>();
+    try
+    {
+        catalogUrl = Model.Url() ?? catalogUrl;
+        IEnumerable<IPublishedContent> query = Portal.Tools(Model);
+        if (!string.IsNullOrWhiteSpace(categoryFilter))
+        {
+            query = query.Where(tool => Portal.MatchesToolCategory(tool, categoryFilter));
+            categoryTitle = BlogList.CategoryTitle(Model, categoryFilter) ?? categoryFilter;
+        }
+
+        tools = query.ToList();
+    }
+    catch
+    {
+        tools = [];
+    }
+}
+<h1>@Model.Name</h1>
+@if (!string.IsNullOrWhiteSpace(categoryFilter))
+{
+    <p class="meta">
+        <span>Kategoria: @categoryTitle. </span>
+        <a href="@catalogUrl">Pokaż wszystkie</a>
+    </p>
+}
+@if (tools.Count == 0)
+{
+    <p>Brak narzędzi.</p>
+}
+else
+{
+    <ul class="post-list">
+        @foreach (var tool in tools)
+        {
+            <li>
+                @try
+                {
+                    @await Html.PartialAsync("~/Views/Partials/Blog/ToolCard.cshtml", tool)
+                }
+                catch
+                {
+                    <p class="meta">Nie udało się wyświetlić narzędzia.</p>
+                }
+            </li>
+        }
+    </ul>
+}
