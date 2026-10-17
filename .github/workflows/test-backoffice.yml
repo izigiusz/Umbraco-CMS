@@ -1,27 +1,6 @@
 name: Test Backoffice
 
 on:
-  push:
-    branches:
-      - main
-      - release/*
-      - v*/dev
-      - v*/main
-    paths:
-      - src/Umbraco.Web.UI.Client/**
-  pull_request:
-    branches:
-      - main
-      - release/*
-      - v*/dev
-      - v*/main
-    paths:
-      - src/Umbraco.Web.UI.Client/**
-
-  # Allows GitHub to use this workflow to validate the merge queue
-  merge_group:
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:

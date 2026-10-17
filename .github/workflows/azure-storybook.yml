@@ -1,22 +1,7 @@
 name: Storybook CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - v*/dev
-      - v*/main
-    paths:
-      - src/Umbraco.Web.UI.Client/package.json
-      - src/Umbraco.Web.UI.Client/package-lock.json
-      - src/Umbraco.Web.UI.Client/src/**
-      - .github/workflows/azure-storybook.yml
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
-      - v*/dev
-      - v*/main
+  workflow_dispatch:
 
 env:
   NODE_OPTIONS: --max_old_space_size=16384
