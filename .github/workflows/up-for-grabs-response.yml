@@ -1,10 +1,7 @@
 name: labeled-up-for-grabs-first-comment
 
 on:
-  issues:
-    types:
-      - labeled
-
+  workflow_dispatch:
 jobs:
   send-response:
     if: github.event.label.name == 'community/up-for-grabs'

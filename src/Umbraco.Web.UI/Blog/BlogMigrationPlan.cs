@@ -20,5 +20,6 @@ public class BlogMigrationPlan : PackageMigrationPlan
         To<AddPortalPillarsMigration>("1.2.0");
         To<RestructurePortalMigration>("1.3.0");
         To<AddToolsCatalogMigration>("1.4.0");
+        To<AddCoursesPageMigration>("1.5.0");
     }
 }

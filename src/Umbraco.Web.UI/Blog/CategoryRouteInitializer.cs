@@ -46,6 +46,7 @@ public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplica
             await EnsureContainerRouteAsync(culture);
             await EnsureNodeRouteAsync(CategorySeed.Neo4jKey, culture, "Neo4j");
             await EnsureNodeRouteAsync(AddToolsCatalogMigration.CatalogKey, culture, AddToolsCatalogMigration.CatalogName);
+            await EnsureNodeRouteAsync(AddCoursesPageMigration.PageKey, culture, AddCoursesPageMigration.PageName);
             await EnsurePillarRoutesAsync(culture);
             await EnsureNewsRoutesAsync(culture);
         }
