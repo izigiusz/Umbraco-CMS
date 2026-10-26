@@ -5,6 +5,7 @@ using Umbraco.Cms.Core.Models.ContentPublishing;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Services.OperationStatus;
+using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.UI.Blog;
 
@@ -18,17 +19,20 @@ public class BlogContentSeeder : INotificationAsyncHandler<UmbracoApplicationSta
     private readonly IContentService _contentService;
     private readonly IContentTypeService _contentTypeService;
     private readonly IContentPublishingService _publishingService;
+    private readonly ILanguageService _languageService;
     private readonly ILogger<BlogContentSeeder> _logger;
 
     public BlogContentSeeder(
         IContentService contentService,
         IContentTypeService contentTypeService,
         IContentPublishingService publishingService,
+        ILanguageService languageService,
         ILogger<BlogContentSeeder> logger)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _publishingService = publishingService;
+        _languageService = languageService;
         _logger = logger;
     }
 
@@ -71,22 +75,27 @@ public class BlogContentSeeder : INotificationAsyncHandler<UmbracoApplicationSta
         var created = new List<IContent>();
         try
         {
-            IContent home = Create(homeType, "Home", Constants.System.Root);
-            home.SetValue(BlogAliases.Intro, "A small blog. New posts appear here and on the Blog page.");
-            await SaveAndPublishAsync(home, created);
+            ILanguage? language = await _languageService.GetDefaultLanguageAsync();
+            var culture = language?.IsoCode;
 
-            IContent blog = Create(blogType, "Blog", home.Id);
-            blog.SetValue(BlogAliases.Intro, "Newest posts first.");
-            await SaveAndPublishAsync(blog, created);
+            IContent home = Create(homeType, "Home", Constants.System.Root, culture);
+            SetText(home, BlogAliases.Intro, "A small blog. New posts appear here and on the Blog page.", culture);
+            await SaveAndPublishAsync(home, created, culture);
 
-            IContent post = Create(postType, "Hello from the blog", blog.Id);
-            post.SetValue(BlogAliases.PublishDate, DateTime.Now);
-            post.SetValue(BlogAliases.Summary, "A short example post so this site has published content after the first deploy.");
-            post.SetValue(
+            IContent blog = Create(blogType, "Blog", home.Id, culture);
+            SetText(blog, BlogAliases.Intro, "Newest posts first.", culture);
+            await SaveAndPublishAsync(blog, created, culture);
+
+            IContent post = Create(postType, "Hello from the blog", blog.Id, culture);
+            SetText(post, BlogAliases.PublishDate, DateTime.Now, culture);
+            SetText(post, BlogAliases.Summary, "A short example post so this site has published content after the first deploy.", culture);
+            SetText(
+                post,
                 BlogAliases.Body,
-                "<p>This post was created automatically. Edit it, add a cover image, or delete it from the backoffice.</p><p>Further posts go under Blog and show up here, newest first.</p>");
-            post.SetValue(BlogAliases.Tags, "[\"umbraco\",\"blog\"]");
-            await SaveAndPublishAsync(post, created);
+                "<p>This post was created automatically. Edit it, add a cover image, or delete it from the backoffice.</p><p>Further posts go under Blog and show up here, newest first.</p>",
+                culture);
+            SetText(post, BlogAliases.Tags, "[\"umbraco\",\"blog\"]", culture);
+            await SaveAndPublishAsync(post, created, culture);
 
             _logger.LogInformation("Published sample Home, Blog, and one blog post.");
         }
@@ -108,9 +117,14 @@ public class BlogContentSeeder : INotificationAsyncHandler<UmbracoApplicationSta
         }
     }
 
-    private IContent Create(IContentType contentType, string name, int parentId)
+    private IContent Create(IContentType contentType, string name, int parentId, string? culture)
     {
         IContent content = _contentService.Create(name, parentId, contentType);
+        if (content.ContentType.VariesByCulture() && string.IsNullOrWhiteSpace(culture) is false)
+        {
+            content.SetCultureName(name, culture);
+        }
+
         if (contentType.DefaultTemplateId > 0)
         {
             content.TemplateId = contentType.DefaultTemplateId;
@@ -119,7 +133,13 @@ public class BlogContentSeeder : INotificationAsyncHandler<UmbracoApplicationSta
         return content;
     }
 
-    private async Task SaveAndPublishAsync(IContent content, List<IContent> created)
+    private static void SetText(IContent content, string alias, object? value, string? culture)
+    {
+        var propertyCulture = content.Properties[alias]?.PropertyType.VariesByCulture() == true ? culture : null;
+        content.SetValue(alias, value, propertyCulture);
+    }
+
+    private async Task SaveAndPublishAsync(IContent content, List<IContent> created, string? culture)
     {
         OperationResult saved = _contentService.Save(content);
         if (saved.Success is false)
@@ -131,9 +151,10 @@ public class BlogContentSeeder : INotificationAsyncHandler<UmbracoApplicationSta
         // and the next boot can try the empty tree again.
         created.Add(content);
 
+        var publishCulture = content.ContentType.VariesByCulture() ? culture : null;
         Attempt<ContentPublishingResult, ContentPublishingOperationStatus> published = await _publishingService.PublishAsync(
             content.Key,
-            [new CulturePublishScheduleModel()],
+            [new CulturePublishScheduleModel { Culture = publishCulture }],
             Constants.Security.SuperUserKey);
 
         if (published.Success is false)

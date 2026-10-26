@@ -19,11 +19,15 @@
     var description = ViewData["Description"] as string;
     if (string.IsNullOrWhiteSpace(description))
     {
-        description = "Codation. AI SDLC | Harness Engineering | Software Factory";
+        description = SiteText.Get(Umbraco, SiteText.MetaDescription);
     }
+
+    var english = SiteText.IsEnglish;
+    var plUrl = Portal.UrlForCulture(Model, SiteText.Polish, "/");
+    var enUrl = Portal.UrlForCulture(Model, SiteText.English, "/en/");
 }
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="@SiteText.HtmlLang">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,7 +36,7 @@
     <meta property="og:title" content="@pageTitle" />
     <meta property="og:description" content="@description" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:locale" content="@SiteText.OgLocale" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1f33'/%3E%3Cpath d='M8 10h10M8 16h14M8 22h7' stroke='%23f8fafc' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='23' y='8' width='2.5' height='16' rx='1' fill='%2322d3ee'/%3E%3C/svg%3E" />
     <style>
         :root {
@@ -52,6 +56,11 @@
         a { color: var(--cyan-deep); text-underline-offset: 0.15em; }
         .site-header, .site-footer, .wrap { width: min(68rem, calc(100% - 2rem)); margin-inline: auto; }
         .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; padding: 1rem 0; }
+        .header-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.75rem 1.25rem; }
+        .lang-switch { display: flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; letter-spacing: 0.04em; }
+        .lang-switch a { color: var(--navy); text-decoration: none; font-weight: 650; }
+        .lang-switch a[aria-current="true"] { color: var(--cyan-deep); }
+        .lang-switch span { color: var(--muted); }
         .brand { display: flex; align-items: center; gap: 0.7rem; color: var(--navy); text-decoration: none; }
         .brand svg { width: 2rem; height: 2rem; flex: none; }
         .word { display: block; font-weight: 700; letter-spacing: -0.03em; font-size: 1.2rem; line-height: 1.1; }
@@ -99,7 +108,7 @@
         .copy { color: var(--navy); font-weight: 650; }
         @@media (max-width: 720px) {
             .site-header { align-items: flex-start; flex-direction: column; }
-            .site-nav { justify-content: flex-start; }
+            .header-end, .site-nav { justify-content: flex-start; }
             h1 { font-size: 2rem; }
         }
     </style>
@@ -114,26 +123,33 @@
             </svg>
             <span>
                 <span class="word">Codation</span>
-                <span class="brand-tag">Od kodowania z AI do Software Factories</span>
+                <span class="brand-tag">@SiteText.Get(Umbraco, SiteText.BrandTagline)</span>
             </span>
         </a>
-        <nav class="site-nav" aria-label="Główne">
-            @* Do not name this variable section. That word is a Razor keyword. *@
-            @foreach (var link in sections)
-            {
-                <a href="@link.Url" aria-current="@(link.Current ? "page" : null)">@link.Label</a>
-            }
-        </nav>
+        <div class="header-end">
+            <nav class="site-nav" aria-label="@SiteText.Get(Umbraco, SiteText.NavLabel)">
+                @* Do not name this variable section. That word is a Razor keyword. *@
+                @foreach (var link in sections)
+                {
+                    <a href="@link.Url" aria-current="@(link.Current ? "page" : null)">@link.Label</a>
+                }
+            </nav>
+            <nav class="lang-switch" aria-label="@SiteText.Get(Umbraco, SiteText.LangLabel)">
+                <a href="@plUrl" hreflang="pl" lang="pl" aria-current="@(english ? null : "true")">PL</a>
+                <span aria-hidden="true">|</span>
+                <a href="@enUrl" hreflang="en" lang="en" aria-current="@(english ? "true" : null)">EN</a>
+            </nav>
+        </div>
     </header>
     <main class="wrap">
         @RenderBody()
     </main>
     <footer class="site-footer wrap">
-        <p>Codation zbiera wiedzę o tym, jak projektować systemy, w których agenci pomagają tworzyć i dostarczać oprogramowanie.</p>
+        <p>@SiteText.Get(Umbraco, SiteText.FooterBlurb)</p>
         @if (sections.Count > 0)
         {
             <div>
-                <strong>Działy</strong>
+                <strong>@SiteText.Get(Umbraco, SiteText.FooterSections)</strong>
                 <ul class="foot-links">
                     @foreach (var link in sections)
                     {
@@ -145,7 +161,7 @@
         @if (footerCategories.Count > 0)
         {
             <div>
-                <strong>Kategorie</strong>
+                <strong>@SiteText.Get(Umbraco, SiteText.FooterCategories)</strong>
                 <ul class="foot-links">
                     @foreach (var category in footerCategories)
                     {
@@ -154,6 +170,11 @@
                 </ul>
             </div>
         }
+        <p class="lang-switch">
+            <a href="@plUrl" hreflang="pl" lang="pl" aria-current="@(english ? null : "true")">PL</a>
+            <span aria-hidden="true">|</span>
+            <a href="@enUrl" hreflang="en" lang="en" aria-current="@(english ? "true" : null)">EN</a>
+        </p>
         <p class="copy">© Codation</p>
     </footer>
 </body>

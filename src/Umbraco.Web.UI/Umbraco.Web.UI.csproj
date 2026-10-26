@@ -37,6 +37,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- English news copy seeded by AddEnglishLanguageMigration. Not a wwwroot file. -->
+    <EmbeddedResource Include="Blog\english-posts.json">
+      <LogicalName>Umbraco.Cms.Web.UI.Blog.english-posts.json</LogicalName>
+    </EmbeddedResource>
+    <Content Remove="Blog\english-posts.json" />
+    <None Remove="Blog\english-posts.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Ensure the AppLocalIcu setting is the same as the referenced ICU package version and changes are also done to the template project! -->
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" VersionOverride="72.1.0.3" />
