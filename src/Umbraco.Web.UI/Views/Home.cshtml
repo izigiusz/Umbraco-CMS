@@ -22,20 +22,20 @@
     }
 }
 <section class="hero">
-    <p class="eyebrow">Inżynieria oprogramowania natywna dla AI</p>
+    <p class="eyebrow">@SiteText.Get(Umbraco, SiteText.HomeEyebrow)</p>
     <h1>Codation</h1>
-    <p class="tagline">Od kodowania z AI do Software Factories.</p>
+    <p class="tagline">@SiteText.Get(Umbraco, SiteText.HomeTagline)</p>
     <p class="mission">AI SDLC | Harness Engineering | Software Factory</p>
 </section>
 @if (Model.HasValue(BlogAliases.Intro))
 {
     <p class="note">@Model.Value(BlogAliases.Intro)</p>
 }
-<section class="section" aria-label="Najnowsze wpisy">
-    <h2>Najnowsze wpisy</h2>
+<section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.HomeLatest)">
+    <h2>@SiteText.Get(Umbraco, SiteText.HomeLatest)</h2>
     @if (posts.Count == 0)
     {
-        <p>Brak wpisów.</p>
+        <p>@SiteText.Get(Umbraco, SiteText.HomeEmpty)</p>
     }
     else
     {
@@ -49,7 +49,7 @@
                     }
                     catch
                     {
-                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                        <p class="meta">@SiteText.Get(Umbraco, SiteText.HomePostFailed)</p>
                     }
                 </li>
             }
@@ -57,13 +57,13 @@
     }
     @if (blog is not null)
     {
-        <p><a href="@blog.Url()">Wszystkie aktualności</a></p>
+        <p><a href="@blog.Url()">@SiteText.Get(Umbraco, SiteText.HomeAllNews)</a></p>
     }
 </section>
 @if (featuredPosts.Count > 0)
 {
-    <section class="section featured" aria-label="Polecane tematy">
-        <h2>Polecane tematy</h2>
+    <section class="section featured" aria-label="@SiteText.Get(Umbraco, SiteText.HomeFeatured)">
+        <h2>@SiteText.Get(Umbraco, SiteText.HomeFeatured)</h2>
         <ul class="featured-grid">
             @foreach (var featuredPost in featuredPosts)
             {
@@ -74,7 +74,7 @@
                     }
                     catch
                     {
-                        <p class="meta">Nie udało się wyświetlić pozycji.</p>
+                        <p class="meta">@SiteText.Get(Umbraco, SiteText.HomeItemFailed)</p>
                     }
                 </li>
             }
@@ -83,8 +83,8 @@
 }
 @if (categories.Count > 0)
 {
-    <section class="section" aria-label="Kategorie">
-        <h2>Kategorie</h2>
+    <section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.HomeCategories)">
+        <h2>@SiteText.Get(Umbraco, SiteText.HomeCategories)</h2>
         <ul class="cat-strip">
             @foreach (var category in categories)
             {

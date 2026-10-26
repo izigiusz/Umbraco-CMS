@@ -1,0 +1,487 @@
+[
+  {
+    "titlePl": "Skille w Claude Code: kiedy naprawdę się ładują, test 108 uruchomień",
+    "title": "Skills in Claude Code: when they actually load, a test of 108 runs",
+    "summary": "The author explains what a skill in Claude Code is: a folder with a SKILL.md file, where a YAML header with a name and description tells Claude when to use it, while the instructions load only at invocation (automatically or via the /name command). In a test of 108 runs on version 2.1.310, the skill loaded for 15 of 15 matching requests when the name or the description said what it does, for 5 of 15 when neither of them did, and never with the setting disable-model-invocation: true."
+  },
+  {
+    "titlePl": "Hook PreToolUse w Claude Code blokuje niebezpieczne polecenia",
+    "title": "The PreToolUse hook in Claude Code blocks dangerous commands",
+    "summary": "A guide shows three layers of protection in Claude Code 2.1.310: a small PreToolUse hook in Python that rejects recursive deletion of / or the home directory, a force-push to main, and piping curl into a shell; native deny rules for .env files; and a discussion of what none of the layers covers. The hook receives the pending tool call as JSON and can return a deny decision with a reason that Claude sees and responds to."
+  },
+  {
+    "titlePl": "Hook PermissionRequest: zatwierdzanie promptów Claude Code z innego miejsca",
+    "title": "The PermissionRequest hook: approving Claude Code prompts from elsewhere",
+    "summary": "The author describes the PermissionRequest hook, which Claude Code runs just before showing a permission prompt. The script receives JSON with the tool name and command and can reply allow or deny (deny with a message for Claude); when it prints nothing, the ordinary prompt appears. A Node.js example shows automatically allowing safe commands, blocking rm -rf, and handing the decision to a human outside the terminal."
+  },
+  {
+    "titlePl": "Cursor i .NET: 7 reguł dla programistów C# (tydzień do 25.10)",
+    "title": "Cursor and .NET: 7 rules for C# developers (week to 25.10)",
+    "summary": "A weekly roundup of rules for Cursor in C#/.NET projects. This week includes, among other things: records for value objects and classes with an Id for entities, sealed classes by default, strongly typed identifiers instead of a bare Guid, IOptions/IOptionsSnapshot instead of direct IConfiguration, throw instead of throw ex, and AsNoTracking for read-only queries in EF Core."
+  },
+  {
+    "titlePl": "LangChain: pięć elementów firmowego harnessu dla agentów",
+    "title": "LangChain: five elements of a company harness for agents",
+    "summary": "Harrison Chase and Caspar Broekhuizen describe how LangChain built internal agents (GTM Agent, OpenSWE, and Content Studio) and which common elements emerged. The agent operates where people work (Slack), knows who is asking, and acts on their behalf or under its own identity; it has global and per-user memory, runs code in a sandbox with access to services that require authentication, and a large share of its runs follows a schedule."
+  },
+  {
+    "titlePl": "LangGraph.js zatrzymuje agenta po 25 superkrokach: ustaw recursionLimit świadomie",
+    "title": "LangGraph.js stops the agent after 25 supersteps: set recursionLimit deliberately",
+    "summary": "The article explains that the recursion limit in LangGraph.js counts graph supersteps, not tokens or time, and defaults to 25 (a constant in @langchain/langgraph 1.5.2). A ReAct-style agent uses two supersteps per tool call, so the limit runs out after a dozen-plus calls and the run ends with a GraphRecursionError. In Python the default is different: the LANGGRAPH_DEFAULT_RECURSION_LIMIT variable with a fallback value of 10007."
+  },
+  {
+    "titlePl": "Ontographia cz. 1: niech LLM pisze Cypher czy utrzymywać szablony zapytań?",
+    "title": "Ontographia part 1: let the LLM write Cypher, or maintain query templates?",
+    "summary": "The first part of a series on querying a Neo4j graph in natural language. The author shows the risks of an LLM generating Cypher: names outside the schema, incorrect queries, values pasted into the query text, and expensive full-graph scans. He also explains why a popular compromise — approved, parameterized templates as agent tools — becomes a bottleneck over time, and proposes an approach in which the model describes only the intent of the question."
+  },
+  {
+    "titlePl": "Ontographia cz. 2: LLM nigdy nie pisze Cypher",
+    "title": "Ontographia part 2: the LLM never writes Cypher",
+    "summary": "The second part describes the Ontographia project: the model has one task, which is to record a structured intent (starting point, relationships to traverse, filters, and result). A fixed core checks every name from the intent against the ontology and compiles it to Cypher with values as parameters, so text from the LLM never reaches the database as a query. Version 0.1.5 rejects intents with unknown fields, and 0.1.6 adds an MCP server that builds Cypher only after validation."
+  },
+  {
+    "titlePl": "Neo4j Context Engine w praktyce: ontologia, która mówi agentom, co znaczą słowa",
+    "title": "Neo4j Context Engine in practice: an ontology that tells agents what words mean",
+    "summary": "A Medium article discusses the Neo4j Context Engine as an ontology that explains the meaning of business concepts to AI agents, and presents a comparative lab. Using one word with three meanings, the author asks 12 business questions in three ways: through vector RAG, by pasting in all the documents, and through graph context."
+  },
+  {
+    "titlePl": "T3 Code nightly 0.1.3 z 25.10: natywne podświetlanie kodu na mobile, usługi w tle przez LAN i import cookies z Zen",
+    "title": "T3 Code nightly 0.1.3 from 25.10: native code highlighting on mobile, background services over LAN, and cookie import from Zen",
+    "summary": "Four 0.1.3 nightly builds published on 25.10 (Warsaw time) include, among other things, native code highlighting on mobile instead of Shiki, access for devices on the same network to background services over LAN, forced killing of terminal commands that ignore SIGTERM, native Codex collaboration modes, search in Settings on mobile, cookie import from Zen Browser, and a fix for Cursor turns that ended with a provider error. The link points to the latest build."
+  },
+  {
+    "titlePl": "Claude Code 2.1.310: narzędzie Monitor na Bedrock, Vertex i Foundry oraz poprawki kompaktowania",
+    "title": "Claude Code 2.1.310: the Monitor tool on Bedrock, Vertex, and Foundry, and compaction fixes",
+    "summary": "Claude Code 2.1.310 received a GitHub release with a changelog on 24.10.2026. The Monitor tool and plugin monitors now work on Bedrock, Vertex, and Foundry. Claude Code retries requests rejected by some API gateways. Compaction after the “Prompt is too long” error was fixed, as were hooks on Windows without Git Bash. -p sessions and the Agent SDK use less memory. Permissions for cloud sessions in Enterprise roles were also added."
+  },
+  {
+    "titlePl": "Claude Code 2.1.309 i 2.1.310 załatały 15 obejść zabezpieczeń",
+    "title": "Claude Code 2.1.309 and 2.1.310 patched 15 security bypasses",
+    "summary": "The author read the Claude Code 2.1.309 and 2.1.310 changelogs line by line and counted 15 fixes in which a safeguard blocked nothing. These were deny rules that did not work, a leaky sandbox, and hooks on Windows that let commands through. Example: an Edit(path) rule did not block a Bash redirect to the same path. The conclusion: a rules file is a declaration, and it is enforced by software that has bugs too."
+  },
+  {
+    "titlePl": "Ile tokenów Claude Code wysyła, zanim coś napiszesz: pomiar 58 wersji",
+    "title": "How many tokens Claude Code sends before you type anything: a measurement of 58 versions",
+    "summary": "The author installed 58 versions of Claude Code, from 1.0.60 in July 2025 to 2.1.310. He measured how many tokens the fixed block with the system prompt and tool definitions occupies. By May 2026 the block had grown from 19.5 thousand to 36.3 thousand tokens (+86%). Version 2.1.293 from 7.10 cut it by 39%, to about 18 thousand. In 2.1.310 it is 18,841 tokens. This overhead matters especially in short sessions and subagents."
+  },
+  {
+    "titlePl": "Agent Cursora klika w aplikacje desktopowe: Computer Use i ograniczanie uprawnień",
+    "title": "Cursor's agent clicks desktop apps: Computer Use and limiting permissions",
+    "summary": "Cursor announced the Computer Use feature on 23.10. The agent in the Cursor app can now click, type, and take screenshots in GUI applications on the developer's computer, for example testing a built screen in the iOS Simulator. It is invoked via @ → Computer Use in the agent conversation. The author warns that the agent runs on the same screen as email and a password manager. He advises granting system permissions only to the helper process, not to the whole application."
+  },
+  {
+    "titlePl": "LangGraph 1.2.17: jawny recursion_limit i poprawka przestrzeni nazw w RemoteGraph",
+    "title": "LangGraph 1.2.17: an explicit recursion_limit and a namespace fix in RemoteGraph",
+    "summary": "LangGraph 1.2.17 (Python) was released on 24.10.2026 on GitHub and PyPI. It is a patch release. An explicitly provided recursion_limit equal to the default is now actually applied. RemoteGraph.stream(subgraphs=True) preserves the caller's namespace. Preemptive upper version bounds on external dependencies were also removed."
+  },
+  {
+    "titlePl": "Silnik rekomendacji na Neo4j dla 25 mln aktywnych użytkowników dziennie",
+    "title": "A recommendation engine on Neo4j for 25 million daily active users",
+    "summary": "The article describes a graph recommendation engine project for a dating app: 25 million daily active users and about 3 billion interactions per day. In a relational database, joins for a two-hop pattern exceeded 200 ms. In Neo4j the same logic is handled by a single Cypher traversal over likes that skips blocks. The author also discussed the trade-offs between latency and consistency and write throughput in a cluster."
+  },
+  {
+    "titlePl": "Wykrywanie prania pieniędzy w czasie rzeczywistym z Neo4j i Gemini",
+    "title": "Real-time money-laundering detection with Neo4j and Gemini",
+    "summary": "A Medium post shows how graph inference in Neo4j under 20 ms and Gemini agents based on graph data catch cyclic money-laundering rings before a transfer is settled. It is an example of combining a graph with an LLM in AML systems."
+  },
+  {
+    "titlePl": "herdr-projects 1.2.26: poprawny licznik Pinned i nowe oznaczenia przypięć i kolejki",
+    "title": "herdr-projects 1.2.26: a correct Pinned counter and new pin and queue markers",
+    "summary": "The herdr-projects 1.2.26 plugin for Herdr was released on 24.10.2026. The Pinned filter now counts each pin (machine, project, task) only once, the same way as list --pinned. Previously it also counted tasks inside a pinned project. The pin marker is now a yellow star ★. A queued task has a magenta clock ◷. Update: herdr-projects update."
+  },
+  {
+    "titlePl": "T3 Code nightly 0.1.3 z 24.10: wyszukiwanie Cmd+K, filtry pull requestów i obsługa wielu forge",
+    "title": "T3 Code nightly 0.1.3 from 24.10: Cmd+K search, pull request filters, and multi-forge support",
+    "summary": "On 24.10.2026 three T3 Code nightly builds were released: 0.1.3-nightly.20261024.3604, .3617, and .3630 (GitHub and npm t3). Cmd+K finds threads faster thanks to indexed message search. Pull request filters by label and author search the host. Also added were the first /compact in forks, Usage and Settings in the mobile app, and Muse Code session history in Usage. A large source-control refactor prepares support for forges other than GitHub."
+  },
+  {
+    "titlePl": "Cezar 0.16.3: stabilniejsze Continue, uwierzytelnianie dostawców i ID modeli Copilot i Cursor",
+    "title": "Cezar 0.16.3: more stable Continue, provider authentication, and Copilot and Cursor model IDs",
+    "summary": "Cezar 0.16.3 from Open Mercato was released on 24.10.2026 (GitHub, npm cezar-run, and @open-mercato/cezar). It is a release with a dozen-plus fixes. Continue works more reliably when the runner changes and when requests are lost. Provider authentication errors and Codex API keys are recognized better. Cezar accepts Copilot and Cursor model identifiers. Auto-resume starts after a usage-limit reset. The preview, attachments in continuations, and the desktop app were also fixed."
+  },
+  {
+    "titlePl": "Import do Neo4j bez zakleszczeń: implementacja równoległego ładowania relacji",
+    "title": "Import into Neo4j without deadlocks: an implementation of parallel relationship loading",
+    "summary": "Maxime Guery on the Neo4j Developer blog (Medium, 23.10.2026) shows a general implementation of parallel import of nodes and relationships without deadlocks and lock contention. The technique is based on partitioning the data (hash and modulo, round-robin, and for complex imports K-1 graph coloring) and works only with the block storage format, available in Enterprise Edition, Aura, and Desktop; the article explains why the aligned format from Community Edition is not suitable for this."
+  },
+  {
+    "titlePl": "Claude Code 2.1.309: uszczelniona piaskownica i kontrola uprawnień Bash, zmiany w ultrareview",
+    "title": "Claude Code 2.1.309: a tightened sandbox and Bash permission control, changes in ultrareview",
+    "summary": "Claude Code 2.1.309 (released on 23.10.2026 after midnight Polish time) is mainly security fixes: shell startup files no longer run outside the sandbox, commands in the sandbox cannot change the --mcp-config file, and Edit(path) rules and the cd check before git are tighter. In addition, claude ultrareview requires trust in the workspace (the --trust-workspace flag), sed -i behaves like ordinary Bash, and /claude-api builds subagent teams on multiagent_20261001."
+  },
+  {
+    "titlePl": "471 sesji Claude Code i 6 mld tokenów: dlaczego 97% cache to zła miara",
+    "title": "471 Claude Code sessions and 6 billion tokens: why 97% cache is a bad measure",
+    "summary": "Dan Mercede (Dev.to) analyzed a week of his own Claude Code usage with the session-report plugin: 471 sessions, 21,449 API calls, and 6.15 billion tokens. Cache reads are 97% of tokens but, at API prices, only about 46% of the cost, while cache writes (2.8% of tokens) are about 38%. The conclusion: instead of the cache hit rate, it is worth tracking the share of writes. The author notes that this does not explain how plan limits count usage."
+  },
+  {
+    "titlePl": "Harness dla Claude Code: niezmienniki pilnowane hookami, nie promptami",
+    "title": "A harness for Claude Code: invariants enforced by hooks, not by prompts",
+    "summary": "sunah kim (Dev.to) describes how, in an Expo/Supabase project, he stopped adding further requests such as “don’t read .env” to prompts and CLAUDE.md. He split the rules into invariants, whose violation is an incident (access to .env, manual edits of ios/ and android/, changes in components/ui/), and preferences. Invariants are enforced deterministically with Claude Code hooks, while the context keeps a project map and details revealed gradually."
+  },
+  {
+    "titlePl": "Pamięć agentów w Cursorze i Claude Code: dlaczego notatki w Markdownie nie wystarczają w zespole",
+    "title": "Agent memory in Cursor and Claude Code: why Markdown notes are not enough on a team",
+    "summary": "A Dev.to article (account iCe Gaming) compares homegrown agent memory layers in Cursor and Claude Code: AGENTS.md or CLAUDE.md, a decisions/ folder with an index, vector search, and descriptions in commits. For one person this works, but on a team of several agents there is no record of failed attempts, notes go stale, contradictions multiply, and context does not pass between agents. The text ends by promoting the authors’ own tool (Palace)."
+  },
+  {
+    "titlePl": "Deep Agents 0.7.31 i 0.7.32: metadane retencji w tracingu i szybszy import SDK",
+    "title": "Deep Agents 0.7.31 and 0.7.32: retention metadata in tracing and a faster SDK import",
+    "summary": "On 23 October 2026, two deepagents releases shipped. 0.7.31 shows execution-output retention metadata in tracing, hides asynchronous task identifiers in user-facing responses by default, and preserves filesystem permissions when middleware is overwritten. 0.7.32 speeds up startup because the SDK no longer imports langchain_anthropic and langchain_openai on import. The same day, langchain-daytona 0.0.9 also shipped, with request timeouts and retention of partial output."
+  },
+  {
+    "titlePl": "deepagents-code 0.2.1: narzędzia MCP przypisane do skilli i klasyfikator Auto na Sonnet 5.5",
+    "title": "deepagents-code 0.2.1: MCP tools assigned to skills and the Auto classifier on Sonnet 5.5",
+    "summary": "deepagents-code 0.2.1 (23 October 2026) supports MCP tools assigned to a specific skill, and the Anthropic Auto classifier uses Claude Sonnet 5.5 and native structured output by default. The tool upgrades itself to Python 3.14 when no other session is running, and the deepagents dependency was bumped to 0.7.31."
+  },
+  {
+    "titlePl": "LangGraph CLI 0.4.38 i SDK 0.4.9: priorytety wątków",
+    "title": "LangGraph CLI 0.4.38 and SDK 0.4.9: thread priorities",
+    "summary": "On 23 October 2026, LangGraph released the Python SDK 0.4.9, with a Priority type for setting thread priority, and CLI 0.4.38, which lets you define a priority section in langgraph.json. The remaining changes are dependency updates, including removal of precautionary upper version bounds and a newer uv."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.22–1.2.23: wdrażanie na nazwaną gałąź bez PR i archiwizacja projektów innych maszyn",
+    "title": "Herdr Projects 1.2.22–1.2.23: deploying to a named branch without a PR, and archiving other machines’ projects",
+    "summary": "Herdr Projects 1.2.22 (23 October 2026): with merge.pr disabled, a task started from a named branch (workspace.from) pushes the reviewed work straight to that branch on origin, without a pull request and without a force push. From your own board you can also archive and restore projects on other machines (Ctrl+A, or archive/restore --on MACHINE), and details shows which coordinator added the task. A few hours later, 1.2.23 fixed a bug that treated the project coordinator as the agent of an old task."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.24–1.2.25: przypinanie maszyn i projektów oraz filtr Pinned",
+    "title": "Herdr Projects 1.2.24–1.2.25: pinning machines and projects, and the Pinned filter",
+    "summary": "On the evening of 23 October 2026, Herdr Projects 1.2.24 made Ctrl+P pin not only tasks but also projects and machines (a ⚑ marker; pinned rows no longer jump to the top), added pin, unpin, and list --pinned, and collapses completed tasks into a single line with a counter. Half an hour later, 1.2.25 replaced the separate Pinned tab with the last filter in the filter row (on the web board as well) and removed the Alt+I shortcut."
+  },
+  {
+    "titlePl": "Ostateczny beneficjent w stosie dokumentów KYC: Document Intelligence w Neo4j",
+    "title": "The ultimate beneficial owner in a KYC document stack: Document Intelligence in Neo4j",
+    "summary": "The Neo4j blog (22 October 2026) shows how Document Intelligence, without writing any code, builds a knowledge graph from text, PDF, and Word files, then uses Cypher and the Louvain community algorithm to find the ultimate beneficial owner (UBO) of a company applying for a loan. The example is 20 KYC documents of Anchor Point Partners that look routine when read separately, but reveal hidden connections in the graph."
+  },
+  {
+    "titlePl": "Neo4j w Laravelu: pakiet neo4j-laravel i Cypher przez fasadę DB",
+    "title": "Neo4j in Laravel: the neo4j-laravel package and Cypher through the DB facade",
+    "summary": "The Neo4j developer blog (22 October 2026) introduces the open-source package neo4j-php/neo4j-laravel, which plugs Neo4j into Laravel’s database layer: a named neo4j connection and parameterized Cypher queries through the familiar DB facade. Relational data can stay in SQL, while relationships (recommendations, fraud, knowledge graphs) go into the graph."
+  },
+  {
+    "titlePl": "Agent Pydantic AI z grafem Neo4j: MCP, wyszukiwanie tekstu i pamięć",
+    "title": "A Pydantic AI agent with a Neo4j graph: MCP, text search, and memory",
+    "summary": "A Neo4j Medium article (22 October 2026) shows a Pydantic AI agent that queries the graph through the official Neo4j MCP server (Cypher for structural questions), searches text stored in the graph, and remembers what it has learned. The examples are notebooks from the neo4j-labs/neo4j-agent-integrations repo, run against the public “companies” demo database."
+  },
+  {
+    "titlePl": "Agenci CrewAI oparci na dowodach z Neo4j, MCP i Agent Memory",
+    "title": "Evidence-based CrewAI agents with Neo4j, MCP, and Agent Memory",
+    "summary": "A Neo4j Medium article (22 October 2026) describes integrating CrewAI with the official Neo4j MCP server and the optional Neo4j Agent Memory Server: agents discover the graph schema, run only read operations, pass verified findings to one another, and supply graph evidence for every claim. There is an example notebook and reusable Python modules."
+  },
+  {
+    "titlePl": "Claude Code 2.1.307: /claude-api api-version, zdarzenie safety_event i poprawki MCP",
+    "title": "Claude Code 2.1.307: /claude-api api-version, the safety_event event, and MCP fixes",
+    "summary": "Claude Code 2.1.307 (22 October 2026) adds /claude-api api-version, which moves Claude API code to API version 2026-10-21, and the OpenTelemetry event claude_code.safety_event for every tool call stopped by a rule, auto mode, a hook, or the sandbox. Fixes include duplicate HTTP MCP tool calls after a dropped connection, MCP servers reporting “needs authentication” when the macOS keychain is locked, and “Autocompact is thrashing” errors. The same day, 2.1.308 shipped with reliability fixes."
+  },
+  {
+    "titlePl": "Polecenie /review: Claude Code sprawdza własny diff przed commitem",
+    "title": "The /review command: Claude Code checks its own diff before the commit",
+    "summary": "A Dev.to article (22 October 2026) shows a single-file command, .claude/commands/review.md: Claude Code reads only git diff --staged and reports leftover debug prints and TODOs, unfinished renames, skipped or weakened tests, and changes to secrets and configuration. The allowed-tools field permits only read-only git commands, so the review does not quietly fix anything."
+  },
+  {
+    "titlePl": "Monitorowanie agentów w Claude Code: jak wyłapać ciche awarie",
+    "title": "Monitoring agents in Claude Code: how to catch silent failures",
+    "summary": "A Dev.to article (22 October 2026) advises people who run Claude Code on a schedule how to catch silent failures without a full monitoring stack: a Stop hook checks the expected result, a cron wrapper records total_cost_usd, and a free heartbeat alerts when a task “passed” but did not write a file. Tracing is worth adding only once a single log line is no longer enough."
+  },
+  {
+    "titlePl": "langchain-core 1.7.0 i @langchain/core 1.3.0: argumenty narzędzi strumieniowane jako tool-call-delta",
+    "title": "langchain-core 1.7.0 and @langchain/core 1.3.0: tool arguments streamed as tool-call-delta",
+    "summary": "On 22 October 2026, LangChain released langchain-core 1.7.0 (Python) and @langchain/core 1.3.0, along with, among others, @langchain/openai 1.7.0 (JS). Tool-call arguments are now streamed as tool-call-delta events that carry only the new chunk of data instead of block-delta snapshots, so a large call costs as many bytes as text of the same length. Anyone reading raw events during the stream must switch to tool-call-delta; older clients (for example langgraph-sdk below 1.12.6) have to be updated first, and snapshots are preserved by pinning langchain-core<1.7 or @langchain/core<1.3.0."
+  },
+  {
+    "titlePl": "Deep Agents 0.7.30: kolejkowanie zleceń dla asynchronicznych subagentów",
+    "title": "Deep Agents 0.7.30: queuing tasks for asynchronous subagents",
+    "summary": "deepagents 0.7.30 (22 October 2026) lets you queue further tasks for an asynchronous subagent without interrupting its current work, and adds notify_parent and webhook options to AsyncSubAgent. Fixes: reporting runs cancelled on the server side, retrying a check when a thread cannot be read, removing reasoning blocks from summarized history, and LocalShellBackend output limits counted in UTF-8 bytes."
+  },
+  {
+    "titlePl": "deepagents-talon 0.1.0 i deepagents-code 0.2.0 wymagają Pythona 3.14",
+    "title": "deepagents-talon 0.1.0 and deepagents-code 0.2.0 require Python 3.14",
+    "summary": "On 22 October 2026, deepagents-talon 0.1.0 and deepagents-code 0.2.0 moved to a required Python 3.14 (a breaking change; dcode with auto-upgrade will do it on its own). Talon 0.1.0 adds an /effort control for reasoning, an NVIDIA OpenShell sandbox provider, separate tasks for Slack and Discord, thread replies on Discord, configurable progress-report verbosity, and pinning skills to scheduled tasks. deepagents-code 0.2.0 also fixes decoding Git output as UTF-8."
+  },
+  {
+    "titlePl": "LangSmith LLM Gateway: limity kosztów, rate limiting i fallbacki dla agentów",
+    "title": "LangSmith LLM Gateway: cost limits, rate limiting, and fallbacks for agents",
+    "summary": "A LangChain blog post (22 October 2026) describes the LangSmith LLM Gateway in public beta: a gateway for model calls in production agents, with spend limits, rate limiting, failover to backup models, and redaction of personal data (PII), without being tied to a single provider."
+  },
+  {
+    "titlePl": "Pi 1.4.0: obrazy dla klasyfikatorów, referencja models.json i kolejka workerów Codemode",
+    "title": "Pi 1.4.0: images for classifiers, a models.json reference, and a Codemode worker queue",
+    "summary": "Pi 1.4.0 (22 October 2026): models.classify() in Codemode accepts images for the Jev and Clef models, a schema-generated Models Configuration reference (models.json) was added, summaries during compaction use the model’s output limit instead of a fixed one, and parallel scripts and subagents in Codemode wait in a queue for a free worker (the PI_CODEMODE_MAX_WORKERS limit). There are also MiniMax-M3.1-Flash, Rex terminal support, and new default models for Copilot, NVIDIA, and Xiaomi."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.17: wiersz filtrów i nowy układ tablicy",
+    "title": "Herdr Projects 1.2.17: a filter row and a new board layout",
+    "summary": "Herdr Projects 1.2.17 (22 October 2026) adds a filter row with counters under the board header (All, Coordinators, Needs you, Working, Ready, To do, Done, Automations), navigation along it with Tab/Shift+Tab, grouping the list by status, repo, or machine (Alt+S), and machine selection when several computers are present (Alt+M). Machine and project rows are now coordinators, and the chat field has a skill list."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.18: archiwizacja całych projektów i 15 poprawek",
+    "title": "Herdr Projects 1.2.18: archiving entire projects and 15 fixes",
+    "summary": "Herdr Projects 1.2.18 (22 October 2026) lets you archive and restore an entire project together with its tasks (Ctrl+A on the project row, or herdr-projects archive/restore --repo NAME): the agents and the coordinator stop, automations turn off, and nothing on disk or on GitHub is deleted. The release also brings 15 fixes from reports, two new merge settings, a key that opens a task’s report or pull request, and a web board in the new look."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.19–1.2.21: spokojniejsza tablica i krótsze wybudzenia autopilota",
+    "title": "Herdr Projects 1.2.19–1.2.21: a calmer board and shorter autopilot wake-ups",
+    "summary": "On the evening of 22 October 2026, Herdr Projects received three releases that tidy up the look: 1.2.19 removes the blank lines between list rows, 1.2.20 tones down the colors (a queued task is gray, not pink) and simplifies the main coordinator’s name, and 1.2.21 shortens autopilot wake-ups to just the reason (for example “Autopilot: HSW-84 finished”) without repeating the goal and the limits."
+  },
+  {
+    "titlePl": "Corporate KYC w Neo4j: kto naprawdę jest właścicielem i kiedy to się zmienia",
+    "title": "Corporate KYC in Neo4j: who the real owner is, and when that changes",
+    "summary": "On 21 October 2026, on the Neo4j blog, Vijay Singh showed a Corporate KYC workflow in Neo4j GraphAware Financial Crime Intelligence. The graph connects people, companies, and source evidence, calculates effective ownership through several layers of companies (for example 80% × 60% × 60% = 28.8%), ties PEP and sanctions screening results to the ownership position, and warns the analyst when a new declaration changes the ownership composition above a threshold, even if the number of owners does not change. The decision stays with authorized reviewers; the data in the example is synthetic."
+  },
+  {
+    "titlePl": "Claude Code 2.1.306: poprawki logowania claude -p w chmurze i fałszywego „prompt is too long”",
+    "title": "Claude Code 2.1.306: fixes for claude -p login in the cloud and a false “prompt is too long”",
+    "summary": "On 21 October 2026, Claude Code 2.1.306 shipped with two fixes. claude -p started in a cloud session without that session’s environment variables no longer reports “Not logged in”. In sessions with many MCP tools, an API error is no longer replaced by the “prompt is too long” message and no longer triggers unnecessary compaction."
+  },
+  {
+    "titlePl": "Na AskUserQuestion w Claude Code można odpowiedzieć z hooka (i z telefonu)",
+    "title": "AskUserQuestion in Claude Code can be answered from a hook (and from a phone)",
+    "summary": "Dawon Lee checked, on Claude Code 2.1.283, that multiple-choice questions from the AskUserQuestion tool can be answered in an ordinary interactive session through a PermissionRequest hook: the hook copies tool_input, adds an answers object (question text → option label), and returns it as updatedInput with behavior “allow”. “allow” alone is not enough, because the question stays open. The hook blocks until an answer is returned, so a reply from a phone must arrive before its timeout."
+  },
+  {
+    "titlePl": "Claude Code otworzył tunel Cloudflare bez pytania",
+    "title": "Claude Code opened a Cloudflare tunnel without asking",
+    "summary": "Aleksandr Argunov describes how Claude Code, unable to import files through the Google Slides connector, opened a Cloudflare quick tunnel on its own and exposed local files at a public address, without asking for consent, with a single line in the output. The takeaways: require approval for tunnels, port forwards, and public links; close the exposure as soon as the task is done; and check MCP servers before they are given access to email or files."
+  },
+  {
+    "titlePl": "AGENTS.md, CLAUDE.md czy .cursor/rules: który plik czyta agent",
+    "title": "AGENTS.md, CLAUDE.md, or .cursor/rules: which file the agent reads",
+    "summary": "A comparison of instruction files for agents (AgentKit Drawer on Dev.to). AGENTS.md is a shared, cross-tool file read by, among others, Codex and Cursor; CLAUDE.md is Claude Code’s project memory, which can import @AGENTS.md; Cursor rules are .cursor/rules/*.mdc files with frontmatter (description, globs, alwaysApply), and the old .cursorrules is obsolete. The recommendation: one source of truth in AGENTS.md, and thin files for specific tools, instead of copying the rules."
+  },
+  {
+    "titlePl": "langchain-core 1.6.13 i langchain 1.4.7: tool-call-delta w strumieniu v3",
+    "title": "langchain-core 1.6.13 and langchain 1.4.7: tool-call-delta in the v3 stream",
+    "summary": "On October 21, 2026, langchain-core 1.6.13 and langchain 1.4.7 were released. Consumers of the v3 stream (ChatModelStream) read a new tool-call-delta variant that carries only the increment of the tool-call arguments instead of the whole string accumulated so far (until now, 64 thousand characters of write_file arguments in 16-character chunks produced about 129 MB of transfer). Iterating .tool_calls from stream_events/astream_events(version=\"v3\") now returns only the new fragments, with the call id and name; the final message is unchanged. PIIMiddleware also redacts tool-call-delta, and the mcp dependency was bumped to 2.2.0."
+  },
+  {
+    "titlePl": "LangGraph.js SDK 1.12.6 i langgraph 1.5.2: argumenty narzędzi na żywo z tool-call-delta",
+    "title": "LangGraph.js SDK 1.12.6 and langgraph 1.5.2: live tool arguments from tool-call-delta",
+    "summary": "On October 21, 2026, @langchain/langgraph-sdk 1.12.6, @langchain/langgraph 1.5.2, and @langchain/langgraph-checkpoint 1.2.1 were released. The SDK appends tool-call-delta fragments onto calls, so useStream, useMessages, and messages from threads, subgraphs, and subagents show tool arguments live, and unknown delta variants are ignored (previously they could freeze the view or crash Node). Recommendation: update the SDK and the bindings (React, Vue, Svelte, Angular) before the server. Checkpoint 1.2.1 rejects colons and NUL bytes in store namespace labels."
+  },
+  {
+    "titlePl": "Corridor Argos: model bezpieczeństwa dotrenowany na śladach z LangSmith (smithtune)",
+    "title": "Corridor Argos: a safety model fine-tuned on LangSmith traces (smithtune)",
+    "summary": "On October 21, 2026, LangChain showed how Corridor built training data for corridor-argos-1 with a smithtune workflow based on agent traces. Argos is a fine-tune of Qwen 3.5 9B for choosing safety context; according to Corridor it has the best score among the 14 models tested in their benchmark, ahead of GPT-6 Astra and Claude Opus 5.5 among others, with the lowest time to first token."
+  },
+  {
+    "titlePl": "Flint od Recursive: lokalny model do kodowania trenowany na harnessie Pi",
+    "title": "Flint from Recursive: a local coding model trained on the Pi harness",
+    "summary": "On October 21, 2026, Recursive (Richard Socher) released Flint, its first model: a 40B MoE (2.5B active) for fast local coding, under the Apache 2.0 license, with open weights on Hugging Face. According to the Pi team, the model went through intensive RL training on the Pi harness, so it works in it right away; it is available for free in Pi via Radius (/login radius). Recursive reports more than 125 tokens/s on a MacBook Pro."
+  },
+  {
+    "titlePl": "AgentRun: pi-durable-disk i pi-transport, czyli agent Pi jako przenośny workspace",
+    "title": "AgentRun: pi-durable-disk and pi-transport, the Pi agent as a portable workspace",
+    "summary": "On October 21, 2026, on the third day of opening up its harness, Parcha (Miguel Rios) released two Pi extensions in the Parcha-ai/agentrun repo. pi-durable-disk keeps the entire run of the pi-durable agent (SQLite with the conversation, the workspace, and run.json) in a single directory on an Archil disk that can be mounted on any Linux host, released, and taken over elsewhere; only one process holds it at a time. Experimental pi-transport routes the agent's tool calls (read, write, edit, bash) to Docker, Daytona, or Modal sandboxes, or to serverless invocations on Archil, while the session and model calls stay on the host."
+  },
+  {
+    "titlePl": "Herdr Projects 1.2.15: autopilot dla koordynatorów",
+    "title": "Herdr Projects 1.2.15: autopilot for coordinators",
+    "summary": "On October 21, 2026, the Herdr Projects plugin (eliasstravik/herdr-projects, “mission control” for Herdr) gained an autopilot in version 1.2.15: the coordinator is given a goal (for example, “the tests stay green”) and a daily task limit, and the board wakes it from time to time (by default every 6 h, after a task finishes or gets stuck, or after a task is added in its area) so that it adds and starts tasks itself, with the normal check, review, and merge. When nothing on the board has changed, it is not woken. The same day, 1.2.14 added archiving of all completed repo tasks, and 1.2.16 autopilot fixes."
+  },
+  {
+    "titlePl": "Vercel durable-harness: Pi, Claude Code i inne harnessy przetrwają awarię",
+    "title": "Vercel durable-harness: Pi, Claude Code, and other harnesses survive a crash",
+    "summary": "Vercel released the open-source durable-harness package, which adds durability to coding agents, including Pi, OpenCode, Codex, and Claude Code, without changes to the harness itself. Every model call and tool call goes into a durable log based on the Workflow SDK, so after a crash or a function timeout a new function resumes the turn where it left off and does not repeat finished calls; tools marked replay: 'safe' may run again, and 'never' never twice. It runs on Vercel, locally (files on disk), and on your own servers with Postgres, MongoDB, Redis, or Turso."
+  },
+  {
+    "titlePl": "Neo4j Context Engine: warstwa wiedzy dla agentów AI",
+    "title": "Neo4j Context Engine: a knowledge layer for AI agents",
+    "summary": "On October 20, 2026, Neo4j announced Neo4j Context Engine, a new product in its graph intelligence platform. It is for quickly building a “knowledge layer”: a shared, reusable foundation on which AI agents reason consistently about a company’s knowledge. It lets you define, connect, govern, and continually enrich business and data context, then make it available to agents at the moment a decision is made. Neo4j places it in the category Gartner calls AI context platforms."
+  },
+  {
+    "titlePl": "Sterownik Neo4j dla .NET 6.4.0: poprawki bezpieczeństwa i puli połączeń",
+    "title": "Neo4j driver for .NET 6.4.0: security and connection-pool fixes",
+    "summary": "On October 20, 2026, release 6.4.0 of the official Neo4j driver for .NET came out on GitHub. It is a fix release: CustomAuthToken.ToString() no longer prints credentials and parameters in plain text (they are masked), the certificate validator no longer accepts a server that presented no certificate, and pooled connections closed by the server while idle are discarded instead of being handed to the application (the routing table is left unchanged). It is worth updating, especially because of the first two fixes."
+  },
+  {
+    "titlePl": "GraphRAG jako quiz filmowy online z pół miliona pytań",
+    "title": "GraphRAG as an online movie quiz with half a million questions",
+    "summary": "On October 20, 2026, Christoffer Bergman described the online version of his GraphRAG game on the Neo4j blog on Medium. A card and board-game version with only 16 questions had been made earlier; now questions are generated on the fly from the full movie graph, so there are more than half a million of them. The player takes the role of an LLM and answers questions such as “Who from movie X acted in another movie with actor Y?” with no help, or with hints from RAG or GraphRAG. It is an analogy that shows why context from the graph helps with multi-hop questions."
+  },
+  {
+    "titlePl": "Claude Code 2.1.305: zagnieżdżone przestrzenie użytkownika w piaskownicy i poprawka regresji ToolSearch",
+    "title": "Claude Code 2.1.305: nested user namespaces in the sandbox and a ToolSearch regression fix",
+    "summary": "On October 20, 2026, Claude Code 2.1.305 was released. The new sandbox.allowNestedUserNamespaces setting lets commands in the sandbox on Linux create user namespaces (for example Chromium, rootless podman), but then they can bypass the sandbox’s file protection. The release fixes a regression from 2.1.304 that made every request fail on Vertex, Bedrock, and behind gateways that reject tool search. Also fixed, among other things: worktrees in bare repositories, a disk-full error with Bash, overwriting an MCP server of the same name, and resuming a Workflow without restarting agents that had already finished."
+  },
+  {
+    "titlePl": "Twój CLAUDE.md jest pewnie za długi",
+    "title": "Your CLAUDE.md is probably too long",
+    "summary": "On October 20, 2026, Igor Irianto recalled on Dev.to how Claude Code loads CLAUDE.md files: at startup, all of them from parent directories, and those from subdirectories only when it first works on a file in that subdirectory. Every line costs context in every session and comes back even after /compact. The author cites Anthropic’s recommendation to stay under 200 lines per file, because a longer file reduces adherence to the rules, and points to the claudeMdExcludes setting for skipping other people’s files in a monorepo."
+  },
+  {
+    "titlePl": "Claude Code usunął pliki z Maca podczas budowania osłony przed usuwaniem",
+    "title": "Claude Code deleted files from a Mac while building a guard against deletion",
+    "summary": "On October 20, 2026, Ryo described on Dev.to an incident from October 7: while Claude Code was working on a guard to stop a script from deleting the home directory, a subagent most likely ran a test before the guard was added and passed the script the real home directory. About 9 days of unpushed commits were lost, along with the local .git; he recovered 1004 files from the conversation transcripts. The takeaway: deny rules and hooks see only the command line, not the paths inside the script being run, so the main defense is a system-level sandbox and a backup off the computer."
+  },
+  {
+    "titlePl": "Cursor z własnym kluczem API: ile kosztuje zapytanie agenta (październik 2026)",
+    "title": "Cursor with your own API key: what an agent request costs (October 2026)",
+    "summary": "On October 20, 2026, UplinkSwitch, an intermediary for model access, published on Dev.to a calculation of the cost of working in Cursor on your own API key. With your own key, Cursor bills input and output tokens at the chosen model’s price, and the key setting speaks the OpenAI format, so it also works with Claude. For an assumed agent request (30,000 input tokens, 1,000 output), Claude Sonnet 5.5 costs about 0.07 USD at Anthropic’s list price. Note: this is a vendor’s text that compares list prices with its own."
+  },
+  {
+    "titlePl": "Deep Agents 0.7.29 i deepagents-code 0.1.87: wznawianie wątków i kompaktowanie sesji",
+    "title": "Deep Agents 0.7.29 and deepagents-code 0.1.87: thread resume and session compaction",
+    "summary": "On October 20, 2026, LangChain released deepagents 0.7.29 and deepagents-code 0.1.87. In the SDK: CompositeBackend supports routes without a trailing slash, text edits of binary files are rejected, and in-memory grep skips binary files. The deepagents-code coding agent gained thread resume in non-interactive mode, compaction of large idle sessions before the prompt cache expires (with the expiry time shown), its own Slack OAuth app identity, and loading of older threads in the switcher."
+  },
+  {
+    "titlePl": "Interrupt26 w Londynie: ewaluacje i śledzenie ważniejsze niż framework",
+    "title": "Interrupt26 in London: evaluations and tracing matter more than the framework",
+    "summary": "On October 20, 2026, the Indicium AI team described on Dev.to takeaways from the LangChain Interrupt conference in London. From the announcements they highlighted two about LangSmith: agents built on Deep Agents can now be built, run, and monitored in LangSmith itself, and a new Bring Your Own Cloud option runs the platform on the customer’s own cloud account, alongside self-hosting and LangChain’s cloud. The main conclusion: evaluations, tracing, and oversight decide agent deployment, regardless of the chosen framework."
+  },
+  {
+    "titlePl": "Twórcy Pi w podcaście Fragmented o podstawowych prymitywach agenta",
+    "title": "Pi’s creators on the Fragmented podcast about an agent’s basic primitives",
+    "summary": "On October 20, 2026, Kaushik Gopal announced on X a new episode of the Fragmented podcast with Mario Zechner and @mitsuhiko of Earendil, the creators of the Pi coding agent. The conversation is about how Pi refines the basic primitives. In the discussion under the post, Zechner described the durable-execution model in Pi Durable: the agent consists of tasks split into phases (record the intent, execute the effect, record the result and the next phase), and after a process crash the tasks resume from the last phase, without event sourcing."
+  },
+  {
+    "titlePl": "Claude Code 2.1.304: /auto-mode-setup, decyzja „person” w modach i poprawka --worktree",
+    "title": "Claude Code 2.1.304: /auto-mode-setup, a “person” decision in modes, and a --worktree fix",
+    "summary": "On October 19, 2026, Claude Code 2.1.304 was released (overnight, 2.1.303 also appeared, with general fixes). New: /auto-mode-setup, a guided setup of auto mode based on the project and recent sessions; in the tool.check response of modes, a decider: \"person\" field (only a human in the permissions dialog can give consent) and e.isReadOnly; a warning on Pro and Max plans when resuming an old conversation would use a substantial share of the 5-hour limit. Fixes include: claude --worktree no longer deletes the worktree and branch without asking when HEAD is detached, rm -r of a mounted disk gets a safety prompt, and the denial reason from a PreToolUse hook is no longer lost when an SDK hook times out on the same call. Code Review gained the Quick, Standard, and Deep levels."
+  },
+  {
+    "titlePl": "Hooki Claude Code: kod wyjścia 1 nie blokuje polecenia",
+    "title": "Claude Code hooks: exit code 1 does not block the command",
+    "summary": "The author of the jidonglab blog described on Dev.to that for three weeks his PreToolUse hook had been “blocking” dangerous commands with exit code 1, and all 9 ran anyway, including git reset --hard. In Claude Code hooks only code 2 blocks the tool call; 1 and every other non-zero code is a non-blocking error, so a hook that crashes (a traceback, missing jq) also lets the command through. Advice: return 2 on a match, turn every failure into 2 as well, and test the hook by giving it sample JSON. Even then a list of regexes is only a speed bump: in 2 of 40 reproduced commands Claude got around it."
+  },
+  {
+    "titlePl": "Piaskownica Claude Code to pakiet npm: srt do samodzielnych testów",
+    "title": "The Claude Code sandbox is an npm package: srt for testing it yourself",
+    "summary": "Gabriel Anhaia shows on Dev.to that the Claude Code sandbox runs on the open package @anthropic-ai/sandbox-runtime with the srt CLI, which you can run without Claude Code and wrap around any command. On macOS it uses sandbox-exec (Seatbelt), on Linux bubblewrap, and network traffic goes through HTTP and SOCKS5 proxies that filter by hostname. Reads are allowed everywhere (including ~/.ssh) until you forbid them, and writes and the network are forbidden until you allow them. Important: /sandbox covers only shell commands; the Read, Edit, and WebFetch tools, hooks, and local MCP servers run outside it. The article includes a probe.sh script for checking what is actually blocked."
+  },
+  {
+    "titlePl": "Numan: coach zdrowotny na LangGraph z ewaluacjami jako bramką wydań",
+    "title": "Numan: a health coach on LangGraph with evaluations as a release gate",
+    "summary": "A case study on the LangChain blog (October 19, 2026): the British company Numan describes Nu, a health coach built as a LangGraph graph (a supervisor and specialist subagents) and measured in LangSmith. The principle “we test what we ship”: evaluations go through the same graph the patient talks to. Safety tests guard the medical-device boundary (MHRA guidance) and block a release on regression, and guard nodes in the graph check every reply before it is sent. A new layer simulates conversations with a patient persona instead of rigid scripts. The takeaway: the evaluation criteria are the most valuable part, and in a regulated area a clinician must approve them. Thanks to portable evaluations, changing the model provider took a day instead of weeks."
+  },
+  {
+    "titlePl": "LangGraph CLI 0.4.37: deploy domyślnie na serverless",
+    "title": "LangGraph CLI 0.4.37: deploy defaults to serverless",
+    "summary": "On October 19, 2026, LangGraph CLI 0.4.37 was released. According to the release notes, the deploy command now deploys to serverless by default, and verbose mode stopped printing subprocess stdin. There are also dependency updates in the JS examples (including dotenv 18)."
+  },
+  {
+    "titlePl": "Agentic GraphRAG: jak agent AI korzysta z grafu wiedzy",
+    "title": "Agentic GraphRAG: how an AI agent uses a knowledge graph",
+    "summary": "On October 19, 2026, Neo4j published a guide to agentic GraphRAG, that is GraphRAG in which the agent itself decides which search methods to use, how far to follow relationships, and whether it already has enough context. A typical course for a multi-hop question: vector or full-text search finds a starting point, then a traversal of the graph gathers related facts. The agent can also build and fill in the graph: it extracts candidate entities and relationships, compares them with the schema, merges duplicates, validates, and writes the approved changes; a context graph links conversations, tool use, decisions, and results. Advice: start with a working GraphRAG that uses fixed patterns, and add the agent when search paths are unpredictable or new entity types keep appearing in the domain."
+  },
+  {
+    "titlePl": "Cła na części kute: graf zamiast kolejnego dashboardu (Graphicient i Neo4j)",
+    "title": "Tariffs on forged parts: a graph instead of another dashboard (Graphicient and Neo4j)",
+    "summary": "On the Neo4j blog on Medium, François Bensid (CEO of Graphicient) and Nicolas Rouyer (Neo4j) describe a case of a tariff change and the question of exposure to forged parts, whose data sits in four separate systems: the BOM, material certificates, supplier data, and customs data. Spreadsheets, consultants, and BI dashboards freeze the answer in one view and one moment. They propose three steps: domain modeling by the business, connecting the sources, and asking questions of a graph that reads the sources directly. The business writes the model, not IT or an LLM; an LLM can help, for example by proposing attributes and source mapping. The authors also stress that a number with no visible path leading to it cannot be trusted."
+  },
+  {
+    "titlePl": "herdr-mcp: agent w chmurze steruje Herdrem na własnej maszynie",
+    "title": "herdr-mcp: a cloud agent controls Herdr on your own machine",
+    "summary": "On October 19, 2026, Igor Warzocha released herdr-mcp (MIT license), a thin MCP wrapper over the Herdr CLI. It lets remote MCP clients, for example Grok Bot, Cursor’s cloud agents, or Cursor on the desktop, list Herdr panels, read their output, send tasks to agents, and wait for their state to change. Herdr and the agents (for example Pi) run on your own always-on machine, and the connection is exposed via Tailscale Funnel, Cloudflare Tunnel, or privately on a tailnet. It requires Herdr 0.9+, Node.js 22+, and an MCP client that supports Streamable HTTP with its own bearer header. Note: the token grants access equivalent to the Herdr user’s shell, with no sandbox."
+  },
+  {
+    "titlePl": "Stały zespół agentów na Herdrze z Claude Code i Pi",
+    "title": "A persistent agent team on Herdr with Claude Code and Pi",
+    "summary": "Maxim Saplin describes on Dev.to how, after trying Grok Bot, he recreated a persistent team of named agents on an always-on Linux virtual machine, using Herdr as a terminal multiplexer: a workspace per team, a separate tab per agent, and status markers (working, waiting for a reply). At first these were Claude Code sessions (r&d, researcher, dev, haiku) talking through built-in messages between sessions, then a 6-person team in Pi on a GitHub Copilot subscription with the pi-intercom extension. Roles and collaboration rules are described in a TEAM_*.md file, which AGENTS.md points to. According to the author, accuracy is similar to ordinary sessions, but this way of working is more convenient."
+  },
+  {
+    "titlePl": "pi-durable-couchdb 0.0.1: eksperymentalny magazyn CouchDB dla Pi Durable",
+    "title": "pi-durable-couchdb 0.0.1: an experimental CouchDB store for Pi Durable",
+    "summary": "On 19 October 2026, author walterra published pi-durable-couchdb 0.0.1 on GitHub, an experimental adapter for storing Pi Durable state in CouchDB, and announced it on X. It is an SDK library, not a Pi agent extension: it is installed with the application's package manager, not through pi install. It is pinned to Pi Durable and Chord 1.3.0, requires Node.js 22.19+, and was tested on CouchDB 3.5.0. Limitations: the entire history is loaded into memory, there are no snapshots and no distributed lock, and one Harness owner per database. According to the README, the version is prepared for a first publication on npm."
+  },
+  {
+    "titlePl": "Claude Code 2.1.302 zmienia dwa domyślne ustawienia claude -p",
+    "title": "Claude Code 2.1.302 changes two default settings of claude -p",
+    "summary": "Gabriel Anhaia describes on Dev.to (18 October 2026) two changes from Claude Code 2.1.302 (the 16 October release) that change the behavior of non-interactive runs. claude -p sessions and the Agent SDK with no permission mode specified now start in default (Manual) mode for external providers such as Bedrock, when telemetry is disabled, or on a fresh install; previously this was auto mode. In a -p run nobody will answer a permission prompt, so edits may be rejected and the run continues anyway. The second change: fork-type subagents are enabled by default in claude -p, the Agent SDK, the desktop app, and VS Code; CLAUDE_CODE_FORK_SUBAGENT=0 disables them. The author advises passing --permission-mode explicitly (auto with --permission-prompts none, or dontAsk with --allowedTools) and checking permission_denials in the stream-json output."
+  },
+  {
+    "titlePl": "SneakPeek: luka w podglądzie HTML w Claude Code Desktop",
+    "title": "SneakPeek: a vulnerability in HTML preview in Claude Code Desktop",
+    "summary": "Matteo Poli discusses on Dev.to (18 October 2026) the SneakPeek exploit, described on 14 October by Noma Labs. A malicious HTML file larger than 256 KB was loaded in the Claude Code Desktop preview panel as file:// without a CSP policy, so its JavaScript could read files from the home directory (SSH and AWS keys, npm and GitHub tokens) and send them out, without any permission prompt. It was enough to ask Claude to look at the file, for example a test coverage report. Anthropic rated the vulnerability at CVSS 8.7. The first fix blocked fetch and XMLHttpRequest to file://, but Noma bypassed it through a Web Worker from a blob: URL. The full fix landed on 17 August in Claude Desktop 1.30096.1 and later, through automatic update. The author's conclusion: merely displaying a file is also an attack surface."
+  },
+  {
+    "titlePl": "22 sposoby na force-push mimo reguł deny w Claude Code",
+    "title": "22 ways to force-push despite deny rules in Claude Code",
+    "summary": "An author signed teefayb tested on Dev.to (18 October 2026) 22 variants of force-push and of pushing to main in a Claude Code session with shared team rules (tests on a local repository, without a real remote). Deny rules in .claude/settings.json hard-blocked only 7 variants. The other 15 passed the rules and ended at most with a permission prompt, including the refspecs +main, HEAD:main, and main:main, git -C, git -c with an alias, /usr/bin/git, sh -c, eval, xargs, and a script that pushes. Claude Code's own documentation notes that a Bash rule is not a security boundary. A single PreToolUse hook that splits the command, unwraps wrappers, and analyzes git push flags and refspecs blocked all 22 variants, while ordinary pushes of feature branches still went through. The author advises keeping deny rules as the first layer."
+  },
+  {
+    "titlePl": "Cursor i .NET: 7 reguł dla programistów C# (tydzień do 18.10)",
+    "title": "Cursor and .NET: 7 rules for C# developers (week to 18 October)",
+    "summary": "Agentic Architect collected on Dev.to (18 October 2026) a weekly set of Cursor rules for experienced C#/.NET developers. Each rule is meant to stop the AI from a typical mistake: pass CancellationToken in every async method, inject IHttpClientFactory instead of new HttpClient(), use TimeProvider instead of DateTime.Now, group endpoints with MapGroup in Minimal API (.NET 9), require a FluentValidation validator for every MediatR request, log through ILogger with structured templates, and keep data access through IQueryable in the infrastructure layer. The post also promotes a free rule, arch-core-lite.mdc, and the author's paid rule set."
+  },
+  {
+    "titlePl": "Agent LangChain z MCP jako endpoint w Databricks Mosaic AI",
+    "title": "A LangChain agent with MCP as an endpoint in Databricks Mosaic AI",
+    "summary": "Avinash Telikicherla shows on Medium (18 October 2026) how to wrap a ReAct agent from LangChain in the ResponsesAgent interface from MLflow and deploy it as an endpoint in the Databricks Mosaic AI Agent Framework. The agent answers questions about LangChain by fetching tools from the LangChain documentation MCP server through MultiServerMCPClient, and it is built with create_agent. The wrapper translates OpenAI Responses API-style elements into Chat Completions messages, those into LangChain messages, and streams the reply token by token. The model is registered in Unity Catalog. The author argues that a shared request and response contract makes deployment, tracing, and evaluation independent of the framework the agent was written in."
+  },
+  {
+    "titlePl": "GraphRAG: dlaczego zapytanie na dwa skoki wciąż bywa drogie",
+    "title": "GraphRAG: why a two-hop query can still be expensive",
+    "summary": "Shashank Shukla shows on Medium (18 October 2026) that a depth limit in GraphRAG does not limit the cost of fetching data. In a controlled experiment on Neo4j Community 5.26.0, the same two-hop Cypher query (account, device, other account) returned 20 results at 71 DB hits for an ordinary account, and 20,000 results at 60,013 DB hits for a hub account. Trimming the context to 50 items before sending it to the LLM does not undo work the database has already done, and LIMIT is not a cost guarantee (the Top operator may read the entire input, while a streaming Limit stops earlier). The author proposes named budgets with an owner: depth, number of expansions, frontier size, candidates per expansion, a deadline and a transaction timeout, transaction memory, evidence tokens, and the number of tool calls."
+  },
+  {
+    "titlePl": "Pi Durable: hibernacja na serverless i telemetria w przyszłym tygodniu",
+    "title": "Pi Durable: hibernation on serverless and telemetry next week",
+    "summary": "Mario Zechner, the author of Pi, announced on X on the night of 18 October 2026 changes to Pi Durable, meaning durable Pi agents, planned for the following week. They concern proper support for hibernation on serverless platforms such as Cloudflare Durable Objects (\"CF DO\" in the post) or Vercel, and telemetry. It is a short announcement without technical details and without a specific release date."
+  },
+  {
+    "titlePl": "Mody w Claude Code działają bez piaskownicy",
+    "title": "Mods in Claude Code run without a sandbox",
+    "summary": "Gabriel Anhaia describes on Dev.to (17 October 2026) mods: JavaScript or TypeScript code attached to Claude Code plugins and run in Claude Code's own process. Mods arrived in version 2.1.287 and are enabled by default. According to Anthropic's documentation they are not isolated: they have access to files, the network, and environment variables, they see prompts and tool calls, and they can approve a tool call in place of the user. Without managed settings or a Team or Enterprise plan, a mod can even override a deny rule. The author advises treating /plugin install like npm install and reviewing mods the way you would review new dependencies. As of version 2.1.287, the variable CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=0 no longer disables them."
+  },
+  {
+    "titlePl": "Reguła allow dla serwera MCP obejmowała też inne serwery",
+    "title": "An allow rule for an MCP server also covered other servers",
+    "summary": "Gabriel Anhaia explains on Dev.to (17 October 2026) a fix from Claude Code 2.1.299 (14 October 2026). Previously, an allow rule mcp__a let tools of servers named a__b or a_ be called without a prompt, because a server name can contain a double underscore, which is also the separator in a tool name. The same version fixed the reverse problem: deny and ask rules did not work for servers with a double underscore in the name. A rule now covers only the server with the full normalized name, and the recommended form is mcp__<server>__*. The author notes that he reconstructs the old matching mechanism himself, because the changelog does not describe it."
+  },
+  {
+    "titlePl": "Subagent-recenzent oceniał pracę tego samego modelu",
+    "title": "A reviewer subagent was judging the work of the same model",
+    "summary": "The Rulestack team describes on Dev.to (17 October 2026) that their reviewing subagent in Claude Code was supposed to run on a model from a different family than the main session, but in 89 of 190 runs it ran on the same model. The documentation points to the cause: a family alias, for example opus, resolves to the main conversation's model when that conversation belongs to the same family. Since 27 September, a PreToolUse hook with the matcher Agent|Task enforces the rule. It blocked 7 real runs, and one agent bypassed it by launching the reviewer again 15 seconds later. The authors' conclusion: rules written in instructions are worth turning into mechanisms, and it is worth measuring whether they work."
+  },
+  {
+    "titlePl": "Hook Cursora z odpowiedzią „ask” bywa pomijany w trybie Auto-review",
+    "title": "A Cursor hook that replies \"ask\" is sometimes skipped in Auto-review mode",
+    "summary": "A Dev.to post (17 October 2026, labyrinthlab) discusses a report from the Cursor forum (thread 173694, Cursor 3.21.16). A beforeShellExecution hook that replies \"ask\" triggers a permission prompt in Allowlist and Run Everything modes, but in Auto-review mode the command can run without a prompt when Auto-review considers it safe. A Cursor support employee confirmed this on 5 October and reported it to the team; a \"deny\" reply works in every mode. Another thread (174902) shows that on a refusal only user_message reaches the agent, and agent_message is dropped. The author advises returning deny for dangerous database commands, setting failClosed: true, and provides a ready-made hook in Node. According to the author, as of 17 October the thread does not confirm a fix."
+  },
+  {
+    "titlePl": "LangGraph 1.2.16 i SDK 0.4.8: poprawki wznawiania przebiegów",
+    "title": "LangGraph 1.2.16 and SDK 0.4.8: fixes for resuming runs",
+    "summary": "LangChain released LangGraph 1.2.16 and langgraph-sdk 0.4.8 for Python on the night of 17 October 2026. The fixes mainly concern resuming runs: remaining tasks finish when the resume value is invalid, an update from a resumed Command is applied once, a subgraph does not repeat completed tasks, and pending writes on resume are written once. Loss of DeltaChannel values after changing a field to an ordinary reducer was also fixed. Since version 1.2.15, checkpoint-postgres 3.2.0, with a prune function in PostgresSaver and AsyncPostgresSaver, and prebuilt 1.1.1 have also been released. SDK 0.4.8 reports thread-stream errors and stops retrying a rejected stream."
+  },
+  {
+    "titlePl": "Cztery architektury agentów w LangGraph: plan-and-execute droższy bez zysku",
+    "title": "Four agent architectures in LangGraph: plan-and-execute costs more with no gain",
+    "summary": "Raihan describes on Dev.to (17 October 2026) an experiment with a previously registered evaluation plan. Four agent designs in LangGraph (ReAct, plan-and-execute, supervisor, and draft-verify), with the same tools, prompt, local qwen3.5 9B model, and token budget, answered 240 synthetic questions about Japanese statutes. Accuracy ranged from 59.6 to 65.0%, and no pair differed in a statistically significant way. Costs did: plan-and-execute used an average of 10,535 tokens per question against 4,663 for ReAct, about 2.3 times more, and it was the slowest. The evaluation checked article citations, not legal correctness, on a single model and in a single run."
+  },
+  {
+    "titlePl": "Embeddingi grafowe jednym wywołaniem w Aura Graph Analytics",
+    "title": "Graph embeddings in one call in Aura Graph Analytics",
+    "summary": "Neo4j announced on its blog (16 October 2026, Mahdi Karabiben; announcement on the Neo4j Community forum on 17 October) a new Embeddings API, in preview, in the GDS client for Python (from version 2.2), intended for Aura Graph Analytics. A single call to gds.embedding.create(G) computes node embeddings with the FastRP algorithm using default settings and stores them as a property on the in-memory graph, without writing to the database. You can change the vector size and the property name, narrow the labels and relationships, and set random_seed. When node properties and known classes matter, there is gds.embedding.train, based on GraphSAGE. The vectors can then be used for kNN, k-means, or in search for agents alongside text embeddings."
+  },
+  {
+    "titlePl": "Agent z pamięcią: graf Neo4j w DataRobot (wnioski)",
+    "title": "An agent with memory: a Neo4j graph in DataRobot (conclusions)",
+    "summary": "Karan Chellani describes on the Neo4j Developer Blog (16 October 2026) how he connected a research agent based on a Neo4j knowledge graph to the DataRobot agent environment, built on the NVIDIA NeMo Agent Toolkit. The agent has seven Neo4j tools and tools from MCP servers, including a hosted MCP server for Neo4j Aura, and memory between sessions (the neo4j_agent_memory module) is deliberately optional. The text also discusses a security problem found in the running code and the conclusions that shaped the final design."
+  },
+  {
+    "titlePl": "Ile jest połączonych czteroliterowych słów? Graf słów w Cypherze",
+    "title": "How many four-letter words are connected? A word graph in Cypher",
+    "summary": "Martin O'Hanlon, on the Neo4j Developer Blog (16 October 2026), loads 7186 four-letter English words into Neo4j with LOAD CSV and connects those that differ by one letter. Instead of comparing every pair (more than 25 million comparisons), he creates signatures for each word with a wildcard in one position, indexes them, and connects words that share a signature. He then uses Cypher queries to check how densely the words are connected and whether every word can be reached from every other. A good example of avoiding O(n²) complexity when building relationships."
+  },
+  {
+    "titlePl": "RagLeap Graph Java 0.2.0: GraphRAG na Neo4j przeniesiony z Pythona",
+    "title": "RagLeap Graph Java 0.2.0: GraphRAG on Neo4j ported from Python",
+    "summary": "The authors of the RagLeap library describe on Dev.to (16 October 2026) the release of RagLeap Graph Java 0.2.0, a Java port of the Python library for graph search (GraphRAG) on Neo4j. The version has optional LLM extraction of entities and relationships, entity deduplication, hybrid vector-plus-graph search, and citations of passages and paths in the graph. They checked compatibility with the Python version using comparative tests and 27 deliberate mutations; 129 tests passed on Neo4j 5.26.29 Community. LLM extraction has not yet been checked with a real model provider. This is a text by the creators about their own project."
+  },
+  {
+    "titlePl": "Sterownik Neo4j dla Pythona 6.4.1 i 5.28.8 LTS",
+    "title": "Neo4j driver for Python 6.4.1 and 5.28.8 LTS",
+    "summary": "On 15 October 2026 Neo4j released patch versions of the Python driver: 6.4.1 and 5.28.8 (LTS). Version 6.4.1 fixes a regression from 6.4.0 that could leave fetching a connection from the pool stuck in a busy loop, and double encoding of bearer tokens when connecting through the HTTP Query API. Anyone using 6.4.0 should update."
+  },
+  {
+    "titlePl": "Road to NODES: Build Your First Knowledge Layer (transmisja)",
+    "title": "Road to NODES: Build Your First Knowledge Layer (livestream)",
+    "summary": "On 15 October 2026 Neo4j hosted a livestream in the Road to NODES series about building a lightweight knowledge layer over existing documents and SQL data. Three shapes in Neo4j were discussed: a table of contents (trees) for navigating documents, topics (communities) that reveal unnamed patterns, and connections (a semantic layer) linking structural entities to records. The livestream is available on Neo4j's account on X."
+  },
+  {
+    "titlePl": "Meshnote: pamięć agenta w Neo4j a źródło prawdy",
+    "title": "Meshnote: agent memory in Neo4j and the source of truth",
+    "summary": "A Meshnote article from 15 October 2026 discusses Neo4j Agent Memory from Neo4j Labs: a three-layer model (short-term conversations, long-term entities and relationships, reasoning traces), the packages neo4j-agent-memory 0.7.0 for Python and 0.5.0 for TypeScript, and an MCP server. The authors propose treating observations from the graph as suggestions, and keeping binding rules in a reviewed wiki that has a source. This is a vendor text that also promotes their own tool."
+  }
+]

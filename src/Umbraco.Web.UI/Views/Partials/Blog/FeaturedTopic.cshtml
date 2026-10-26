@@ -15,7 +15,7 @@
         {
             <div class="meta">@label</div>
         }
-        <h3>@(string.IsNullOrWhiteSpace(Model.Name) ? "Bez tytułu" : Model.Name)</h3>
+        <h3>@(string.IsNullOrWhiteSpace(Model.Name) ? SiteText.Get(Umbraco, SiteText.PostUntitled) : Model.Name)</h3>
         @if (string.IsNullOrWhiteSpace(lead) is false)
         {
             <p>@lead</p>
@@ -25,5 +25,5 @@
 }
 catch
 {
-    <p class="meta">Nie udało się wyświetlić pozycji.</p>
+    <p class="meta">@SiteText.Get(Umbraco, SiteText.HomeItemFailed)</p>
 }

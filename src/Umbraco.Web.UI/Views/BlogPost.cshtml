@@ -9,7 +9,7 @@
     ViewData["Description"] = summary;
 }
 <article>
-    <p class="meta"><a href="@(blog?.Url() ?? "/")">@(blog?.Name ?? "Blog")</a></p>
+    <p class="meta"><a href="@(blog?.Url() ?? "/")">@(blog?.Name ?? SiteText.Get(Umbraco, SiteText.BlogName))</a></p>
     <h1>@Model.Name</h1>
     <p class="meta">@Portal.FormatDate(published)</p>
     @{

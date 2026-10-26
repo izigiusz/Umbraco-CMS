@@ -11,7 +11,7 @@
         {
             <span class="chip" style="--chip: @Portal.AccentCss(category)">@Portal.CategoryName(category)</span>
         }
-        <h2>@(string.IsNullOrWhiteSpace(Model.Name) ? "Bez tytułu" : Model.Name)</h2>
+        <h2>@(string.IsNullOrWhiteSpace(Model.Name) ? SiteText.Get(Umbraco, SiteText.PostUntitled) : Model.Name)</h2>
         @if (string.IsNullOrWhiteSpace(lead) is false)
         {
             <p>@lead</p>
@@ -20,5 +20,5 @@
 }
 catch
 {
-    <p class="meta">Nie udało się wyświetlić wpisu.</p>
+    <p class="meta">@SiteText.Get(Umbraco, SiteText.HomePostFailed)</p>
 }

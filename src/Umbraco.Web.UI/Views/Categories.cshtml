@@ -13,7 +13,7 @@
 <h1>@Model.Name</h1>
 @if (items.Count == 0)
 {
-    <p>Brak kategorii.</p>
+    <p>@SiteText.Get(Umbraco, SiteText.CategoriesEmpty)</p>
 }
 else
 {

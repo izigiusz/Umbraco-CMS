@@ -2,7 +2,7 @@
 @{
     var categoryFilter = Context.Request.Query["category"].ToString();
     var categoryTitle = categoryFilter;
-    var catalogUrl = "/narzedzia/";
+    var catalogUrl = SiteText.IsEnglish ? "/en/tools/" : "/narzedzia/";
     var tools = new List<IPublishedContent>();
     try
     {
@@ -25,13 +25,13 @@
 @if (!string.IsNullOrWhiteSpace(categoryFilter))
 {
     <p class="meta">
-        <span>Kategoria: @categoryTitle. </span>
-        <a href="@catalogUrl">Pokaż wszystkie</a>
+        <span>@SiteText.Get(Umbraco, SiteText.ToolsCategory) @categoryTitle. </span>
+        <a href="@catalogUrl">@SiteText.Get(Umbraco, SiteText.ToolsShowAll)</a>
     </p>
 }
 @if (tools.Count == 0)
 {
-    <p>Brak narzędzi.</p>
+    <p>@SiteText.Get(Umbraco, SiteText.ToolsEmpty)</p>
 }
 else
 {
@@ -45,7 +45,7 @@ else
                 }
                 catch
                 {
-                    <p class="meta">Nie udało się wyświetlić narzędzia.</p>
+                    <p class="meta">@SiteText.Get(Umbraco, SiteText.ToolsFailed)</p>
                 }
             </li>
         }

@@ -41,6 +41,7 @@ public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplica
 
         try
         {
+            await EnsureCultureRoutesAsync();
             ILanguage? language = await _languageService.GetDefaultLanguageAsync();
             var culture = language?.IsoCode ?? string.Empty;
             await EnsureContainerRouteAsync(culture);
@@ -54,6 +55,72 @@ public class CategoryRouteInitializer : INotificationAsyncHandler<UmbracoApplica
         {
             _logger.LogError(exception, "Published portal pages were missing public URLs.");
         }
+    }
+
+    private async Task EnsureCultureRoutesAsync()
+    {
+        IContent? home = _contentService.GetRootContent()
+            .FirstOrDefault(item => item.Trashed is false && item.ContentType.Alias.Equals(BlogAliases.Home, StringComparison.OrdinalIgnoreCase));
+        if (home is null)
+        {
+            return;
+        }
+
+        ILanguage[] languages = (await _languageService.GetAllAsync()).ToArray();
+        if (MissingSegment(home, languages) || DescendantsMissingSegment(home, languages))
+        {
+            await _documentUrlService.CreateOrUpdateUrlSegmentsWithDescendantsAsync(home.Key);
+            _logger.LogInformation("Created public URLs for published cultures under Home.");
+        }
+    }
+
+    private bool DescendantsMissingSegment(IContent home, IReadOnlyList<ILanguage> languages)
+    {
+        const int pageSize = 100;
+        long page = 0;
+        while (true)
+        {
+            IEnumerable<IContent> batch = _contentService.GetPagedDescendants(home.Id, page, pageSize, out long total);
+            foreach (IContent child in batch)
+            {
+                if (MissingSegment(child, languages))
+                {
+                    return true;
+                }
+            }
+
+            page++;
+            if (page * pageSize >= total)
+            {
+                return false;
+            }
+        }
+    }
+
+    private bool MissingSegment(IContent content, IReadOnlyList<ILanguage> languages)
+    {
+        if (content.Trashed)
+        {
+            return false;
+        }
+
+        foreach (ILanguage language in languages)
+        {
+            var published = content.ContentType.VariesByCulture()
+                ? content.IsCulturePublished(language.IsoCode)
+                : content.Published;
+            if (published is false)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(_documentUrlService.GetUrlSegment(content.Key, language.IsoCode, isDraft: false)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task EnsureContainerRouteAsync(string culture)

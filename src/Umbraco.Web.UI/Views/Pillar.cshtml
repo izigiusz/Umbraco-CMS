@@ -17,7 +17,7 @@
         title = Model.Name;
     }
 }
-<p class="eyebrow">Dział</p>
+<p class="eyebrow">@SiteText.Get(Umbraco, SiteText.PillarEyebrow)</p>
 <h1>@title</h1>
 @if (!string.IsNullOrWhiteSpace(lead))
 {
@@ -30,13 +30,13 @@
     }
     catch
     {
-        <p class="meta">Treść tej strony jest niedostępna.</p>
+        <p class="meta">@SiteText.Get(Umbraco, SiteText.PillarUnavailable)</p>
     }
 </div>
 @if (related.Count > 0)
 {
-    <section class="section" aria-label="Powiązane kategorie">
-        <h2>Powiązane kategorie</h2>
+    <section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.PillarRelated)">
+        <h2>@SiteText.Get(Umbraco, SiteText.PillarRelated)</h2>
         <ul class="cat-strip">
             @foreach (var category in related)
             {
@@ -47,8 +47,8 @@
 }
 @if (posts.Count > 0)
 {
-    <section class="section" aria-label="Najnowsze wpisy">
-        <h2>Najnowsze wpisy</h2>
+    <section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.HomeLatest)">
+        <h2>@SiteText.Get(Umbraco, SiteText.HomeLatest)</h2>
         <ul class="post-list">
             @foreach (var post in posts)
             {
@@ -59,7 +59,7 @@
                     }
                     catch
                     {
-                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                        <p class="meta">@SiteText.Get(Umbraco, SiteText.HomePostFailed)</p>
                     }
                 </li>
             }

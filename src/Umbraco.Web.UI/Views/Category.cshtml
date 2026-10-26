@@ -36,11 +36,11 @@
 {
     <p class="lead">@description</p>
 }
-<section class="section" aria-label="Wpisy">
-    <h2>Wpisy</h2>
+<section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.CategoryPosts)">
+    <h2>@SiteText.Get(Umbraco, SiteText.CategoryPosts)</h2>
     @if (posts.Count == 0)
     {
-        <p>Brak wpisów w tej kategorii.</p>
+        <p>@SiteText.Get(Umbraco, SiteText.CategoryEmpty)</p>
     }
     else
     {
@@ -54,7 +54,7 @@
                     }
                     catch
                     {
-                        <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                        <p class="meta">@SiteText.Get(Umbraco, SiteText.HomePostFailed)</p>
                     }
                 </li>
             }
@@ -63,8 +63,8 @@
 </section>
 @if (tools.Count > 0)
 {
-    <section class="section" aria-label="Narzędzia">
-        <h2>Narzędzia</h2>
+    <section class="section" aria-label="@SiteText.Get(Umbraco, SiteText.CategoryTools)">
+        <h2>@SiteText.Get(Umbraco, SiteText.CategoryTools)</h2>
         <ul class="post-list">
             @foreach (var tool in tools)
             {
@@ -75,7 +75,7 @@
                     }
                     catch
                     {
-                        <p class="meta">Nie udało się wyświetlić narzędzia.</p>
+                        <p class="meta">@SiteText.Get(Umbraco, SiteText.ToolsFailed)</p>
                     }
                 </li>
             }

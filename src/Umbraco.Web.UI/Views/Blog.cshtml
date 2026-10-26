@@ -4,7 +4,7 @@
     var tagFilter = Context.Request.Query["tag"].ToString();
     var categoryFilter = Context.Request.Query["category"].ToString();
     var categoryTitle = categoryFilter;
-    var blogUrl = "/blog/";
+    var blogUrl = SiteText.IsEnglish ? "/en/news/" : "/aktualnosci/";
     var posts = new List<IPublishedContent>();
     try
     {
@@ -42,18 +42,18 @@
     <p class="meta">
         @if (!string.IsNullOrWhiteSpace(categoryFilter))
         {
-            <span>Kategoria: @categoryTitle. </span>
+            <span>@SiteText.Get(Umbraco, SiteText.BlogCategory) @categoryTitle. </span>
         }
         @if (!string.IsNullOrWhiteSpace(tagFilter))
         {
-            <span>Tag: @tagFilter. </span>
+            <span>@SiteText.Get(Umbraco, SiteText.BlogTag) @tagFilter. </span>
         }
-        <a href="@blogUrl">Pokaż wszystkie</a>
+        <a href="@blogUrl">@SiteText.Get(Umbraco, SiteText.ToolsShowAll)</a>
     </p>
 }
 @if (!pagePosts.Any())
 {
-    <p>Brak wpisów.</p>
+    <p>@SiteText.Get(Umbraco, SiteText.BlogEmpty)</p>
 }
 else
 {
@@ -67,7 +67,7 @@ else
                 }
                 catch
                 {
-                    <p class="meta">Nie udało się wyświetlić wpisu.</p>
+                    <p class="meta">@SiteText.Get(Umbraco, SiteText.HomePostFailed)</p>
                 }
             </li>
         }
@@ -75,10 +75,10 @@ else
 }
 @if (totalPages > 1)
 {
-    <nav class="pager" aria-label="Wpisy">
+    <nav class="pager" aria-label="@SiteText.Get(Umbraco, SiteText.BlogPager)">
         @if (pageNumber > 1)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1, categoryFilter)">Nowsze</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber - 1, categoryFilter)">@SiteText.Get(Umbraco, SiteText.BlogNewer)</a>
         }
         else
         {
@@ -87,7 +87,7 @@ else
         <span class="meta">@(pageNumber) / @totalPages</span>
         @if (pageNumber < totalPages)
         {
-            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1, categoryFilter)">Starsze</a>
+            <a href="@BlogList.PageUrl(blogUrl, tagFilter, pageNumber + 1, categoryFilter)">@SiteText.Get(Umbraco, SiteText.BlogOlder)</a>
         }
     </nav>
 }

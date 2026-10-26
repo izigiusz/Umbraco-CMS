@@ -9,9 +9,6 @@ namespace Umbraco.Cms.Web.UI.Blog;
 /// </summary>
 public static class Portal
 {
-    private static readonly CultureInfo Polish = CultureInfo.GetCultureInfo("pl-PL");
-    private static readonly StringComparer PolishNames = StringComparer.Create(Polish, ignoreCase: true);
-
     private static readonly Dictionary<string, string> AccentBySlug = new(StringComparer.OrdinalIgnoreCase)
     {
         ["agenci-kodowania"] = "#22d3ee",
@@ -64,11 +61,11 @@ public static class Portal
             IPublishedContent? about = FindPillar(home, PillarSeed.AboutKey, "O mnie");
 
             var sections = new List<MainSection>(5);
-            AddSection(sections, news, "Aktualności", current is not null && IsNews(current));
-            AddSection(sections, tools, "Narzędzia", current is not null && IsAlias(current, BlogAliases.ToolsCatalog));
-            AddSection(sections, courses, AddCoursesPageMigration.PageName, IsPage(current, courses));
-            AddSection(sections, categories, "Kategorie", current is not null && IsCategories(current));
-            AddSection(sections, about, "O mnie", IsPage(current, about));
+            AddSection(sections, news, SiteText.Fallback(SiteText.NavNews), current is not null && IsNews(current));
+            AddSection(sections, tools, SiteText.Fallback(SiteText.NavTools), current is not null && IsAlias(current, BlogAliases.ToolsCatalog));
+            AddSection(sections, courses, SiteText.Fallback(SiteText.NavCourses), IsPage(current, courses));
+            AddSection(sections, categories, SiteText.Fallback(SiteText.NavCategories), current is not null && IsCategories(current));
+            AddSection(sections, about, SiteText.Fallback(SiteText.NavAbout), IsPage(current, about));
             return sections;
         }
         catch (Exception)
@@ -123,7 +120,7 @@ public static class Portal
                 return [];
             }
 
-            return items.OrderBy(item => item.Name, PolishNames).ToList();
+            return items.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
         }
         catch (Exception)
         {
@@ -382,10 +379,36 @@ public static class Portal
     }
 
     /// <summary>
-    /// A Polish calendar date.
+    /// A calendar date in the current request culture.
     /// </summary>
     public static string FormatDate(DateTime value)
-        => value.ToString("d MMMM yyyy", Polish);
+        => value.ToString("d MMMM yyyy", CultureInfo.CurrentUICulture);
+
+    /// <summary>
+    /// Public URL of this page in another culture, or the fallback when that culture is not published.
+    /// </summary>
+    public static string UrlForCulture(IPublishedContent? content, string culture, string fallback)
+    {
+        if (content is null)
+        {
+            return fallback;
+        }
+
+        try
+        {
+            var url = content.Url(culture);
+            if (string.IsNullOrWhiteSpace(url) || url == "#")
+            {
+                return fallback;
+            }
+
+            return url;
+        }
+        catch (Exception)
+        {
+            return fallback;
+        }
+    }
 
     private static IPublishedContent? FirstOfType(IPublishedContent? home, string alias)
         => home?.ChildrenOfType(alias)?.FirstOrDefault();
@@ -593,7 +616,7 @@ public static class Portal
 }
 
 /// <summary>
-/// One link in the header and in the footer Działy column.
+/// One link in the header and in the footer sections column.
 /// </summary>
 /// <param name="Label">Visible name.</param>
 /// <param name="Url">Public URL, or # when the page has none.</param>
