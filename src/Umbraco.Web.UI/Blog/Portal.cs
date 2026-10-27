@@ -382,7 +382,7 @@ public static class Portal
     /// A calendar date in the current request culture.
     /// </summary>
     public static string FormatDate(DateTime value)
-        => value.ToString("d MMMM yyyy", CultureInfo.CurrentUICulture);
+        => value.ToString("d MMMM yyyy", SiteText.DisplayCulture);
 
     /// <summary>
     /// Public URL of this page in another culture, or the fallback when that culture is not published.
