@@ -22,5 +22,6 @@ public class BlogMigrationPlan : PackageMigrationPlan
         To<AddToolsCatalogMigration>("1.4.0");
         To<AddCoursesPageMigration>("1.5.0");
         To<AddEnglishLanguageMigration>("1.6.0");
+        To<RepairEnglishLanguageMigration>("1.7.0");
     }
 }

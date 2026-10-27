@@ -1,4 +1,6 @@
 using System.Globalization;
+using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common;
 
 namespace Umbraco.Cms.Web.UI.Blog;
@@ -17,6 +19,11 @@ public static class SiteText
     /// so /en works on umbraco.runasp.net and on any other host.
     /// </summary>
     public const string EnglishDomain = "/en";
+
+    /// <summary>
+    /// Explicit production host. The path domain <see cref="EnglishDomain" /> still works on any host.
+    /// </summary>
+    public const string ProductionHost = "umbraco.runasp.net";
 
     public const string NavLabel = "Codation.Nav.Label";
     public const string LangLabel = "Codation.Lang.Label";
@@ -110,21 +117,39 @@ public static class SiteText
     };
 
     /// <summary>
-    /// True when the current request is English.
+    /// True only for the public English culture <c>en</c>.
+    /// The install language <c>en-US</c> is not the public English site.
     /// </summary>
-    public static bool IsEnglish
-    {
-        get
-        {
-            var name = CultureInfo.CurrentUICulture.Name;
-            return name.Equals(English, StringComparison.OrdinalIgnoreCase)
-                || name.StartsWith("en-", StringComparison.OrdinalIgnoreCase);
-        }
-    }
+    public static bool IsEnglish => string.Equals(RequestCulture(), English, StringComparison.OrdinalIgnoreCase);
 
     public static string HtmlLang => IsEnglish ? English : Polish;
 
     public static string OgLocale => IsEnglish ? "en_US" : "pl_PL";
+
+    /// <summary>
+    /// Culture used to format dates and dictionary fallbacks on the public site.
+    /// </summary>
+    public static CultureInfo DisplayCulture
+        => CultureInfo.GetCultureInfo(IsEnglish ? "en-GB" : "pl-PL");
+
+    private static string? RequestCulture()
+    {
+        try
+        {
+            var culture = StaticServiceProvider.Instance.GetRequiredService<IVariationContextAccessor>().VariationContext?.Culture;
+            if (string.IsNullOrWhiteSpace(culture) is false)
+            {
+                return culture;
+            }
+        }
+        catch (Exception)
+        {
+            // Views still render. Polish is the public default.
+        }
+
+        var ui = CultureInfo.CurrentUICulture.Name;
+        return ui.Equals(English, StringComparison.OrdinalIgnoreCase) ? English : null;
+    }
 
     public static IEnumerable<(string Key, string Polish, string English)> DictionaryEntries()
     {
@@ -141,7 +166,7 @@ public static class SiteText
     {
         try
         {
-            var value = umbraco.GetDictionaryValue(key);
+            var value = umbraco.GetDictionaryValue(key, DisplayCulture);
             if (string.IsNullOrWhiteSpace(value) is false)
             {
                 return value;

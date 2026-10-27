@@ -1,5 +1,6 @@
 using System.Net;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.Models.ContentPublishing;
@@ -16,6 +17,8 @@ namespace Umbraco.Cms.Web.UI.Blog;
 /// Shared values stay invariant: URLs, pickers, slugs, order, dates, tags and images.
 /// URL segments follow the culture name, so Polish keeps /kursy/ and English is /en/courses/.
 /// The English hostname is the path /en, which matches any host. Polish is the wildcard default, so it has no prefix.
+/// Package migrations suppress cache refresh, so content loaded in the same step can still look invariant.
+/// This step clears those caches before it writes cultures. A later 1.7.0 step repeats the same work.
 /// </summary>
 public class AddEnglishLanguageMigration : AsyncMigrationBase
 {
@@ -68,6 +71,7 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
     private readonly IContentService _contentService;
     private readonly IContentPublishingService _publishingService;
     private readonly IDomainService _domainService;
+    private readonly AppCaches _appCaches;
 
     public AddEnglishLanguageMigration(
         IMigrationContext context,
@@ -76,7 +80,8 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
         IContentTypeService contentTypeService,
         IContentService contentService,
         IContentPublishingService publishingService,
-        IDomainService domainService)
+        IDomainService domainService,
+        AppCaches appCaches)
         : base(context)
     {
         _languageService = languageService;
@@ -85,6 +90,7 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
         _contentService = contentService;
         _publishingService = publishingService;
         _domainService = domainService;
+        _appCaches = appCaches;
     }
 
     protected override async Task MigrateAsync()
@@ -97,14 +103,22 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
         IContent? home = FindHome();
         List<ContentSnapshot> snapshots = home is null ? [] : Snapshot(home);
         await EnableVariationAsync();
+        // Notifications are suppressed for the whole plan, so the content-type cache
+        // still describes the old invariant types until it is cleared.
+        ClearCaches();
 
         if (home is null)
         {
-            Logger.LogWarning("No Home content node was found, so English content and hostnames were not seeded.");
-            return;
+            throw new InvalidOperationException("No Home content node was found, so English was not published.");
         }
 
-        await PublishEnglishAsync(home, snapshots);
+        IContentType? homeType = _contentTypeService.Get(BlogAliases.Home);
+        if (homeType is null || homeType.VariesByCulture() is false)
+        {
+            throw new InvalidOperationException("The Home document type is still invariant, so English was not published.");
+        }
+
+        await PublishEnglishAsync(snapshots);
         await EnsureDomainsAsync(home);
     }
 
@@ -286,51 +300,88 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
         }
     }
 
-    private async Task PublishEnglishAsync(IContent home, List<ContentSnapshot> snapshots)
+    private async Task PublishEnglishAsync(List<ContentSnapshot> snapshots)
     {
         Dictionary<string, EnglishPostCopy> posts = new(EnglishPostCatalog.Load(), StringComparer.Ordinal);
+        Guid? homeKey = FindHome()?.Key;
         var published = 0;
         var copied = 0;
+        var failed = 0;
+        var homeReady = false;
 
         foreach (ContentSnapshot snapshot in snapshots)
         {
-            IContent? content = _contentService.GetById(snapshot.Key);
-            if (content is null || content.Trashed)
+            try
             {
-                continue;
-            }
-
-            if (content.ContentType.VariesByCulture() is false)
-            {
-                throw new InvalidOperationException($"'{content.Name}' is still invariant after the schema update.");
-            }
-
-            var dirty = RestorePolish(content, snapshot);
-            dirty |= ApplyEnglish(content, snapshot, posts, ref copied);
-            if (dirty is false && content.IsCulturePublished(SiteText.English))
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(content.GetCultureName(SiteText.English)))
-            {
-                if (dirty)
+                IContent? content = _contentService.GetById(snapshot.Key);
+                if (content is null || content.Trashed)
                 {
-                    OperationResult restored = _contentService.Save(content);
-                    if (restored.Success is false)
-                    {
-                        throw new InvalidOperationException($"Saving '{content.Name}' failed: {restored.Result}.");
-                    }
+                    continue;
                 }
 
-                continue;
-            }
+                if (content.ContentType.VariesByCulture() is false)
+                {
+                    ClearCaches();
+                    content = _contentService.GetById(snapshot.Key);
+                }
 
-            await SaveAndPublishAsync(content);
-            published++;
+                if (content is null || content.ContentType.VariesByCulture() is false)
+                {
+                    failed++;
+                    Logger.LogError("'{Name}' is still invariant after the content type cache was cleared.", snapshot.Name);
+                    continue;
+                }
+
+                var dirty = RestorePolish(content, snapshot);
+                dirty |= ApplyEnglish(content, snapshot, posts, ref copied);
+                if (dirty is false && content.IsCulturePublished(SiteText.English))
+                {
+                    if (content.Key == homeKey)
+                    {
+                        homeReady = true;
+                    }
+
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(content.GetCultureName(SiteText.English)))
+                {
+                    if (dirty)
+                    {
+                        OperationResult restored = _contentService.Save(content);
+                        if (restored.Success is false)
+                        {
+                            throw new InvalidOperationException($"Saving '{content.Name}' failed: {restored.Result}.");
+                        }
+                    }
+
+                    continue;
+                }
+
+                await SaveAndPublishAsync(content);
+                published++;
+                if (content.Key == homeKey)
+                {
+                    homeReady = true;
+                }
+            }
+            catch (Exception exception)
+            {
+                failed++;
+                Logger.LogError(exception, "English was not published for {Name}.", snapshot.Name);
+            }
         }
 
-        Logger.LogInformation("Published {Count} English variants. {Copied} posts had no prepared translation and kept their Polish text in English.", published, copied);
+        if (homeReady is false)
+        {
+            throw new InvalidOperationException("Home is not published in English, so /en/ would 404.");
+        }
+
+        Logger.LogInformation(
+            "Published {Count} English variants. {Copied} posts had no prepared translation and kept their Polish text. {Failed} nodes failed.",
+            published,
+            copied,
+            failed);
     }
 
     private bool ApplyEnglish(IContent content, ContentSnapshot snapshot, Dictionary<string, EnglishPostCopy> posts, ref int copied)
@@ -461,6 +512,16 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
                 [
                     new DomainModel
                     {
+                        DomainName = SiteText.ProductionHost,
+                        IsoCode = SiteText.Polish,
+                    },
+                    new DomainModel
+                    {
+                        DomainName = SiteText.ProductionHost + SiteText.EnglishDomain,
+                        IsoCode = SiteText.English,
+                    },
+                    new DomainModel
+                    {
                         DomainName = SiteText.EnglishDomain,
                         IsoCode = SiteText.English,
                     },
@@ -506,10 +567,7 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
                     continue;
                 }
 
-                var culture = content.ContentType.VariesByCulture() && content.Properties[alias]!.PropertyType.VariesByCulture()
-                    ? SiteText.Polish
-                    : null;
-                values[alias] = content.GetValue<string>(alias, culture);
+                values[alias] = ReadText(content, alias);
             }
         }
 
@@ -659,18 +717,49 @@ public class AddEnglishLanguageMigration : AsyncMigrationBase
             return null;
         }
 
-        var culture = content.Properties[alias]!.PropertyType.VariesByCulture() ? SiteText.Polish : null;
-        return content.GetValue<string>(alias, culture);
+        return ReadText(content, alias);
+    }
+
+    private static string? ReadText(IContent content, string alias)
+    {
+        if (content.HasProperty(alias) is false)
+        {
+            return null;
+        }
+
+        if (content.Properties[alias]!.PropertyType.VariesByCulture())
+        {
+            var polish = content.GetValue<string>(alias, SiteText.Polish);
+            if (string.IsNullOrWhiteSpace(polish) is false)
+            {
+                return polish;
+            }
+
+            // 1.6.0 could copy invariant values onto the install language before pl became visible.
+            var install = content.GetValue<string>(alias, "en-US");
+            if (string.IsNullOrWhiteSpace(install) is false)
+            {
+                return install;
+            }
+        }
+
+        return content.GetValue<string>(alias);
+    }
+
+    private void ClearCaches()
+    {
+        _appCaches.RuntimeCache.Clear();
+        _appCaches.IsolatedCaches.ClearAllCaches();
     }
 
     private static string EnglishBody(string summary, string? polishBody)
     {
         var html = "<p>" + WebUtility.HtmlEncode(summary) + "</p>";
         var href = FirstHttpHref(polishBody);
-            if (href is not null)
-            {
-                html += "<p><a href=\"" + WebUtility.HtmlEncode(href) + "\">Source</a></p>";
-            }
+        if (href is not null)
+        {
+            html += "<p><a href=\"" + WebUtility.HtmlEncode(href) + "\">Source</a></p>";
+        }
 
         return html;
     }
